@@ -1,4 +1,20 @@
-let moderatorHtml: String = #"""
+import Vapor
+
+struct HTML {
+    let source: String
+}
+
+extension HTML: ResponseEncodable {
+  public func encodeResponse(for request: Request) -> EventLoopFuture<Response> {
+    var headers = HTTPHeaders()
+    headers.add(name: .contentType, value: "text/html")
+    return request.eventLoop.makeSucceededFuture(.init(
+      status: .ok, headers: headers, body: .init(string: source)
+    ))
+  }
+}
+
+let moderatorHtml = HTML(source: #"""
 <!DOCTYPE HTML>
 <html><head><meta charset="UTF-8"><title>Moderator</title><style>html,head,body { padding:0; margin:0; }
 body { font-family: calibri, helvetica, arial, sans-serif; }</style><script type="text/javascript">
@@ -16165,9 +16181,9 @@ for (var publicModule in Elm)
 
 }).call(this);
 </script></head><body><script type="text/javascript">Elm.Moderator.fullscreen()</script></body></html>
-"""#
+"""#)
 
-let transcriberHtml: String = #"""
+let transcriptionHtml = HTML(source: #"""
 <!DOCTYPE HTML>
 <html><head><meta charset="UTF-8"><title>Transcriber</title><style>html,head,body { padding:0; margin:0; }
 body { font-family: calibri, helvetica, arial, sans-serif; }</style><script type="text/javascript">
@@ -30864,4 +30880,5 @@ for (var publicModule in Elm)
 
 }).call(this);
 </script></head><body><script type="text/javascript">Elm.Transcriber.fullscreen()</script></body></html>
-"""#
+"""#)
+
