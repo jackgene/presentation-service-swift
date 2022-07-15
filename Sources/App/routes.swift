@@ -46,7 +46,7 @@ func routes(_ app: Application) throws {
 
     // Deck
     app.get { req in
-        return req.view.render("")
+        return req.view.render("\(app.directory.publicDirectory)deck.html")
     }
     app.group("event") { route in
         route.webSocket("question") { _, ws in
