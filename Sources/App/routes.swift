@@ -2,6 +2,17 @@ import Vapor
 
 let jsonEncoder = JSONEncoder() // TODO use Vapor's global JSON encoder if possible
 
+extension WebSocket: TokensByCountListener {
+    public func countsReceived(_ counts: Counts) {
+        if
+            let data = try? jsonEncoder.encode(counts.encodableTokensByCount),
+            let json = String(data: data, encoding: .utf8)
+        {
+            send(json)
+        }
+    }
+}
+
 extension WebSocket: ApprovedMessagesListener {
     public func messagesReceived(_ msgs: Messages) {
         if
@@ -38,13 +49,26 @@ extension WebSocket: ChatMessageListener {
 func routes(_ app: Application) throws {
     let chatMessages = ChatMessageBroadcaster(name: "chat")
     let rejectedMessages = ChatMessageBroadcaster(name: "rejected")
+    let languagePoll = SendersByTokenCounter(
+        extractToken: languageFromFirstWord,
+        chatMessages: chatMessages, rejectedMessages: rejectedMessages,
+        expectedSenders: 200
+    )
     let questions = MessageApprovalRouter(
-        chatMessages: chatMessages, rejectedMessages: rejectedMessages, initialCapacity: 10
+        chatMessages: chatMessages, rejectedMessages: rejectedMessages,
+        expectedCount: 10
     )
     let transcriptions = TranscriptionBroadcaster()
 
     // Deck
     app.group("event") { route in
+        route.webSocket("language-poll") { _, ws in
+            ws.onClose.whenComplete { result in
+                Task { await languagePoll.unregister(listener: ws) }
+            }
+            await languagePoll.register(listener: ws)
+        }
+
         route.webSocket("question") { _, ws in
             ws.onClose.whenComplete { result in
                 Task { await questions.unregister(listener: ws) }
