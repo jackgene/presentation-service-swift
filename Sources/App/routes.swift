@@ -44,9 +44,6 @@ func routes(_ app: Application) throws {
     let transcriptions = TranscriptionBroadcaster()
 
     // Deck
-    app.get { req in
-        return req.view.render("\(app.directory.publicDirectory)deck.html")
-    }
     app.group("event") { route in
         route.webSocket("question") { _, ws in
             ws.onClose.whenComplete { result in
