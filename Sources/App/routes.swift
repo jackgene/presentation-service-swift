@@ -1,6 +1,5 @@
 import Vapor
 
-let emptyResponse = Response(status: .noContent)
 let jsonEncoder = JSONEncoder() // TODO use Vapor's global JSON encoder if possible
 
 extension WebSocket: ApprovedMessagesListener {
@@ -99,11 +98,11 @@ func routes(_ app: Application) throws {
             sender: sender, recipient: recipient, text: text
         )
 
-        return emptyResponse
+        return Response(status: .noContent)
     }
     app.get("reset") { _ -> Response in
         await questions.reset()
-        return emptyResponse
+        return Response(status: .noContent)
     }
 
     // Transcription
@@ -116,7 +115,7 @@ func routes(_ app: Application) throws {
             }
 
             Task { await transcriptions.newTranscriptionText(text) }
-            return emptyResponse
+            return Response(status: .noContent)
         }
     }
 }
