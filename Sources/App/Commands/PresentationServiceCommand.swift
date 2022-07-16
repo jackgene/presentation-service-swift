@@ -118,6 +118,6 @@ public final class PresentationServiceCommand: Command {
     }
 
     deinit {
-        assert(self.didShutdown, "ServeCommand did not shutdown before deinit")
+        assert(self.didShutdown, "PresentationServiceCommand did not shutdown before deinit")
     }
 }
