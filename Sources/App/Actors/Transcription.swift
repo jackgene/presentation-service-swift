@@ -12,29 +12,9 @@ public protocol TranscriptionListener: AnyObject {
     func transcriptionReceived(_: Transcript)
 }
 
-fileprivate class ListenerHandle: Hashable {
-    let delegate: TranscriptionListener
-
-    init(_ delegate: TranscriptionListener) {
-        self.delegate = delegate
-    }
-
-    func transcriptionReceived(_ transcript: Transcript) {
-        delegate.transcriptionReceived(transcript)
-    }
-
-    public func hash(into hasher: inout Hasher) {
-        hasher.combine(ObjectIdentifier(delegate))
-    }
-
-    public static func == (l: ListenerHandle, r: ListenerHandle) -> Bool {
-        l.delegate === r.delegate
-    }
-}
-
 public actor TranscriptionBroadcaster {
-    private static let logger: Logger = Logger(label: "TranscriptionBroadcaster")
-    private var listeners: Set<ListenerHandle> = []
+    private static let logger = Logger(label: "TranscriptionBroadcaster")
+    private var listeners: Set<HashableInstance<TranscriptionListener>> = []
 
     public init() {}
 
@@ -42,15 +22,15 @@ public actor TranscriptionBroadcaster {
         Self.logger.info("Received transcription text - \(text)")
         let transcript = Transcript(text: text)
         listeners.forEach {
-            $0.transcriptionReceived(transcript)
+            $0.instance.transcriptionReceived(transcript)
         }
     }
 
     public func register(listener: TranscriptionListener) {
-        listeners.insert(ListenerHandle(listener))
+        listeners.insert(HashableInstance(listener))
     }
 
     public func unregister(listener: TranscriptionListener) {
-        listeners.remove(ListenerHandle(listener))
+        listeners.remove(HashableInstance(listener))
     }
 }
