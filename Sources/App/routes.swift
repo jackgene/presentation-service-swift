@@ -122,6 +122,7 @@ func routes(_ app: Application) throws {
         return Response(status: .noContent)
     }
     app.get("reset") { _ -> Response in
+        await languagePoll.reset()
         await questions.reset()
         return Response(status: .noContent)
     }
