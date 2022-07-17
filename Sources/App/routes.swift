@@ -136,7 +136,7 @@ func routes(_ app: Application) throws {
                 throw Abort(.badRequest, reason: #"missing "text" parameter"#)
             }
 
-            Task { await transcriptions.newTranscriptionText(text) }
+            await transcriptions.newTranscriptionText(text)
             return Response(status: .noContent)
         }
     }
