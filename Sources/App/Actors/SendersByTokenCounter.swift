@@ -27,7 +27,8 @@ public protocol TokensByCountListener: AnyObject {
 }
 
 public actor SendersByTokenCounter {
-    private static let logger = Logger(label: "SendersByTokenCounter")
+    private static let log = Logger(label: "SendersByTokenCounter")
+    private let name: String
     private let extractToken: (String) -> String?
     private let chatMessages: ChatMessageBroadcaster
     private let rejectedMessages: ChatMessageBroadcaster
@@ -37,11 +38,13 @@ public actor SendersByTokenCounter {
     private var listeners: Set<HashableInstance<TokensByCountListener>> = []
 
     public init(
+        name: String,
         extractToken: @escaping (String) -> String?,
         chatMessages: ChatMessageBroadcaster,
         rejectedMessages: ChatMessageBroadcaster,
         expectedSenders: Int
     ) {
+        self.name = name
         self.extractToken = extractToken
         self.chatMessages = chatMessages
         self.rejectedMessages = rejectedMessages
@@ -73,6 +76,7 @@ public actor SendersByTokenCounter {
             await chatMessages.register(listener: self)
         }
         listeners.insert(HashableInstance(listener))
+        Self.log.info("+1 \(name) listener (=\(listeners.count))")
     }
 
     public func unregister(listener: TokensByCountListener) async {
@@ -80,6 +84,7 @@ public actor SendersByTokenCounter {
         if listeners.isEmpty {
             await chatMessages.unregister(listener: self)
         }
+        Self.log.info("-1 \(name) listener (=\(listeners.count))")
     }
 }
 
@@ -90,7 +95,7 @@ extension SendersByTokenCounter: ChatMessageListener {
         let newToken: String? = extractToken(msg.text)
 
         if let newToken = newToken {
-            Self.logger.info(#"Extracted token "\#(newToken)""#)
+            Self.log.info(#"Extracted token "\#(newToken)""#)
             if let sender = sender {
                 self.tokensBySender.updateValue(newToken, forKey: sender)
             }
@@ -104,7 +109,7 @@ extension SendersByTokenCounter: ChatMessageListener {
 
             notifyListeners()
         } else {
-            Self.logger.info("No token extracted")
+            Self.log.info("No token extracted")
             await rejectedMessages.newMessage(msg)
         }
     }

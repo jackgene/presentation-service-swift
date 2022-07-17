@@ -18,7 +18,7 @@ public protocol ChatMessageListener: AnyObject {
 }
 
 public actor ChatMessageBroadcaster {
-    private static let logger = Logger(label: "ChatMessageBroadcaster")
+    private static let log = Logger(label: "ChatMessageBroadcaster")
     private let name: String
     private var listeners: Set<HashableInstance<ChatMessageListener>> = []
 
@@ -27,7 +27,7 @@ public actor ChatMessageBroadcaster {
     }
 
     public func newMessage(_ msg: ChatMessage) {
-        Self.logger.info("Received \(self.name) message - \(msg.description)")
+        Self.log.info("Received \(self.name) message - \(msg.description)")
         listeners.forEach { listener in
             Task { await listener.instance.messageReceived(msg) }
         }
@@ -35,9 +35,11 @@ public actor ChatMessageBroadcaster {
 
     public func register(listener: ChatMessageListener) {
         listeners.insert(HashableInstance(listener))
+        Self.log.info("+1 \(name) message listener (=\(listeners.count))")
     }
 
     public func unregister(listener: ChatMessageListener) {
         listeners.remove(HashableInstance(listener))
+        Self.log.info("-1 \(name) message listener (=\(listeners.count))")
     }
 }
