@@ -19,15 +19,15 @@ struct Frequencies {
             let oldCount: Int = countsByItem[item] ?? 0
             let newCount: Int = oldCount + delta
 
+            var countsByItem = self.countsByItem
+            countsByItem.updateValue(newCount, forKey: item)
+
             var newCountItems: [String] = itemsByCount[newCount] ?? []
             if delta > 0 {
                 newCountItems.append(item)
             } else {
                 newCountItems.insert(item, at: 0)
             }
-
-            var countsByItem = self.countsByItem
-            countsByItem.updateValue(newCount, forKey: item)
 
             var itemsByCount = self.itemsByCount
             itemsByCount.updateValue(
