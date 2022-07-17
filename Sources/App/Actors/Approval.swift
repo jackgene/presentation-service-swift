@@ -58,9 +58,7 @@ public actor MessageApprovalRouter {
 extension MessageApprovalRouter: ChatMessageListener {
     public func messageReceived(_ msg: ChatMessage) async {
         if msg.sender != "Me" {
-            await rejectedMessages.newMessage(
-                sender: msg.sender, recipient: msg.recipient, text: msg.text
-            )
+            await rejectedMessages.newMessage(msg)
             return
         }
 

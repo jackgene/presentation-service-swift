@@ -105,9 +105,7 @@ extension SendersByTokenCounter: ChatMessageListener {
             notifyListeners()
         } else {
             Self.logger.info("No token extracted")
-            await rejectedMessages.newMessage(
-                sender: msg.sender, recipient: msg.recipient, text: msg.text
-            )
+            await rejectedMessages.newMessage(msg)
         }
     }
 }
