@@ -61,8 +61,8 @@ public final class PresentationServiceCommand: Command {
         }
 
         // Adding route configured from argument
-        context.application.get { req in
-            return req.view.render(htmlPath)
+        context.application.get { _ in
+            return HTML(source: try String(contentsOfFile: htmlPath))
         }
 
         switch (signature.hostname, signature.port, signature.bind, signature.socketPath) {
