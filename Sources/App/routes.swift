@@ -50,11 +50,13 @@ func routes(_ app: Application) throws {
     let chatMessages = ChatMessageBroadcaster(name: "chat")
     let rejectedMessages = ChatMessageBroadcaster(name: "rejected")
     let languagePoll = SendersByTokenCounter(
+        name: "language-poll",
         extractToken: languageFromFirstWord,
         chatMessages: chatMessages, rejectedMessages: rejectedMessages,
         expectedSenders: 200
     )
     let questions = MessageApprovalRouter(
+        name: "question",
         chatMessages: chatMessages, rejectedMessages: rejectedMessages,
         expectedCount: 10
     )

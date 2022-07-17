@@ -1,3 +1,5 @@
+import Logging
+
 public struct Messages: Encodable {
     public let chatText: [String]
 }
@@ -7,16 +9,20 @@ public protocol ApprovedMessagesListener: AnyObject {
 }
 
 public actor MessageApprovalRouter {
+    private static let log = Logger(label: "MessageApprovalRouter")
+    private let name: String
     private let chatMessages: ChatMessageBroadcaster
     private let rejectedMessages: ChatMessageBroadcaster
     private var chatText: [String]
     private var listeners: Set<HashableInstance<ApprovedMessagesListener>> = []
 
     public init(
+        name: String,
         chatMessages: ChatMessageBroadcaster,
         rejectedMessages: ChatMessageBroadcaster,
         expectedCount: Int
     ) {
+        self.name = name
         self.chatMessages = chatMessages
         self.rejectedMessages = rejectedMessages
 
@@ -45,6 +51,7 @@ public actor MessageApprovalRouter {
             await chatMessages.register(listener: self)
         }
         listeners.insert(HashableInstance(listener))
+        Self.log.info("+1 \(name) listener (=\(listeners.count))")
     }
 
     public func unregister(listener: ApprovedMessagesListener) async {
@@ -52,6 +59,7 @@ public actor MessageApprovalRouter {
         if listeners.isEmpty {
             await chatMessages.unregister(listener: self)
         }
+        Self.log.info("-1 \(name) listener (=\(listeners.count))")
     }
 }
 
