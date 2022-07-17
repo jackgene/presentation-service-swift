@@ -116,7 +116,7 @@ func routes(_ app: Application) throws {
         }
 
         await chatMessages.newMessage(
-            sender: sender, recipient: recipient, text: text
+            ChatMessage(sender: sender, recipient: recipient, text: text)
         )
 
         return Response(status: .noContent)
