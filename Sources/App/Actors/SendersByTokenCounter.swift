@@ -100,12 +100,9 @@ extension SendersByTokenCounter: ChatMessageListener {
                 self.tokensBySender.updateValue(newToken, forKey: sender)
             }
 
-            self.tokenFrequencies = tokenFrequencies
-                .updated(item: newToken, delta: 1)
-            if let oldToken = oldToken {
-                self.tokenFrequencies = tokenFrequencies
-                    .updated(item: oldToken, delta: -1)
-            }
+            self.tokenFrequencies = tokenFrequencies.updated(
+                byAdding: newToken, andRemoving: oldToken
+            )
 
             notifyListeners()
         } else {
