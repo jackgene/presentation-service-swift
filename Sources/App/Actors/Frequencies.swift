@@ -12,39 +12,57 @@ struct Frequencies {
         self.itemsByCount = itemsByCount
     }
 
-    func updated(item: String, delta: Int) -> Frequencies {
-        if delta == 0 {
-            return self
+    private func update(item: String, delta: Int,
+                        countsByItem: inout [String: Int],
+                        itemsByCount: inout [Int: [String]]) {
+        guard delta != 0 else {
+            return
+        }
+
+        let oldCount: Int = countsByItem[item] ?? 0
+        let newCount: Int = oldCount + delta
+
+        countsByItem.updateValue(newCount, forKey: item)
+
+        var newCountItems: [String] = itemsByCount[newCount] ?? []
+        if delta > 0 {
+            newCountItems.append(item)
         } else {
-            let oldCount: Int = countsByItem[item] ?? 0
-            let newCount: Int = oldCount + delta
+            newCountItems.insert(item, at: 0)
+        }
 
-            var countsByItem = self.countsByItem
-            countsByItem.updateValue(newCount, forKey: item)
+        itemsByCount.updateValue(
+            (itemsByCount[oldCount] ?? []).filter { $0 != item },
+            forKey: oldCount
+        )
+        itemsByCount.updateValue(
+            newCountItems,
+            forKey: newCount
+        )
+    }
 
-            var newCountItems: [String] = itemsByCount[newCount] ?? []
-            if delta > 0 {
-                newCountItems.append(item)
-            } else {
-                newCountItems.insert(item, at: 0)
-            }
-
-            var itemsByCount = self.itemsByCount
-            itemsByCount.updateValue(
-                (itemsByCount[oldCount] ?? []).filter { $0 != item },
-                forKey: oldCount
-            )
-            itemsByCount.updateValue(
-                newCountItems,
-                forKey: newCount
-            )
-
-            return Frequencies(
-                countsByItem: countsByItem,
-                itemsByCount: itemsByCount.filter { count, items in
-                    count > 0 && !items.isEmpty
-                }
+    func updated(byAdding addition: String,
+                 andRemoving removal: String? = nil) -> Frequencies {
+        var countsByItem = self.countsByItem
+        var itemsByCount = self.itemsByCount
+        update(
+            item: addition, delta: 1,
+            countsByItem: &countsByItem,
+            itemsByCount: &itemsByCount
+        )
+        if let removal = removal {
+            update(
+                item: removal, delta: -1,
+                countsByItem: &countsByItem,
+                itemsByCount: &itemsByCount
             )
         }
+
+        return Frequencies(
+            countsByItem: countsByItem,
+            itemsByCount: itemsByCount.filter { count, items in
+                count > 0 && !items.isEmpty
+            }
+        )
     }
 }
