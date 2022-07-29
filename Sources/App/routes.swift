@@ -4,10 +4,7 @@ let jsonEncoder = JSONEncoder() // TODO use Vapor's global JSON encoder if possi
 
 extension WebSocket: TokensByCountListener {
     public func countsReceived(_ counts: Counts) {
-        if
-            let data = try? jsonEncoder.encode(counts.encodableTokensByCount),
-            let json = String(data: data, encoding: .utf8)
-        {
+        if let json = counts.json {
             send(json)
         }
     }
@@ -126,6 +123,7 @@ func routes(_ app: Application) throws {
     app.get("reset") { _ -> Response in
         await languagePoll.reset()
         await questions.reset()
+
         return Response(status: .noContent)
     }
 
@@ -139,6 +137,7 @@ func routes(_ app: Application) throws {
             }
 
             await transcriptions.newTranscriptionText(text)
+
             return Response(status: .noContent)
         }
     }
