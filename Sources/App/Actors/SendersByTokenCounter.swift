@@ -16,9 +16,17 @@ public struct Counts {
             }
         }
     }
+
     public let tokensByCount: [Int: [String]]
-    public var encodableTokensByCount: [[PairElement]] {
-        return tokensByCount.map { [.count(number: $0), .tokens(values: $1)] }
+    public let json: String?
+
+    init(tokensByCount: [Int: [String]]) {
+        self.tokensByCount = tokensByCount
+
+        let encodableTokensByCount: [[PairElement]] = tokensByCount
+            .map { [.count(number: $0), .tokens(values: $1)] }
+        self.json = (try? jsonEncoder.encode(encodableTokensByCount))
+            .flatMap { String(data: $0, encoding: .utf8) }
     }
 }
 
