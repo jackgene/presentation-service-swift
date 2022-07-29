@@ -136,9 +136,9 @@
          runnableDebuggingMode = "0">
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "PresentationService"
-            BuildableName = "PresentationService"
-            BlueprintName = "PresentationService"
+            BlueprintIdentifier = "Run"
+            BuildableName = "Run"
+            BlueprintName = "Run"
             ReferencedContainer = "container:">
          </BuildableReference>
       </BuildableProductRunnable>
