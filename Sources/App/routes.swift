@@ -62,24 +62,24 @@ func routes(_ app: Application) throws {
     // Deck
     app.group("event") { route in
         route.webSocket("language-poll") { _, ws in
-            ws.onClose.whenComplete { result in
-                Task { await languagePoll.unregister(listener: ws) }
-            }
             await languagePoll.register(listener: ws)
+
+            try? await ws.onClose.get()
+            await languagePoll.unregister(listener: ws)
         }
 
         route.webSocket("question") { _, ws in
-            ws.onClose.whenComplete { result in
-                Task { await questions.unregister(listener: ws) }
-            }
             await questions.register(listener: ws)
+
+            try? await ws.onClose.get()
+            await questions.unregister(listener: ws)
         }
 
         route.webSocket("transcription") { _, ws in
-            ws.onClose.whenComplete { result in
-                Task { await transcriptions.unregister(listener: ws) }
-            }
             await transcriptions.register(listener: ws)
+
+            try? await ws.onClose.get()
+            await transcriptions.unregister(listener: ws)
         }
     }
 
@@ -88,10 +88,10 @@ func routes(_ app: Application) throws {
         route.get { _ in return moderatorHtml }
 
         route.webSocket("event") { _, ws in
-            ws.onClose.whenComplete { result in
-                Task { await rejectedMessages.unregister(listener: ws) }
-            }
             await rejectedMessages.register(listener: ws)
+
+            try? await ws.onClose.get()
+            await rejectedMessages.unregister(listener: ws)
         }
     }
     app.post("chat") { req -> Response in
