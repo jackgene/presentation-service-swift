@@ -26,10 +26,10 @@ public actor ChatMessageBroadcaster {
         self.name = name
     }
 
-    public func newMessage(_ msg: ChatMessage) {
+    public func newMessage(_ msg: ChatMessage) async {
         Self.log.info("Received \(self.name) message - \(msg.description)")
-        listeners.forEach { listener in
-            Task { await listener.instance.messageReceived(msg) }
+        for listener in listeners {
+            await listener.instance.messageReceived(msg)
         }
     }
 
