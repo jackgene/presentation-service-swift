@@ -31,7 +31,7 @@ public struct Counts {
 }
 
 public protocol TokensByCountListener: AnyObject {
-    func countsReceived(_: Counts)
+    func countsReceived(_: Counts) async
 }
 
 public actor SendersByTokenCounter {
@@ -62,21 +62,21 @@ public actor SendersByTokenCounter {
         tokenFrequencies = Frequencies(expectedItems: expectedSenders)
     }
 
-    private func notifyListeners() {
+    private func notifyListeners() async {
         let counts = Counts(tokensByCount: tokenFrequencies.itemsByCount)
-        listeners.forEach {
-            $0.instance.countsReceived(counts)
+        for listener in listeners {
+            await listener.instance.countsReceived(counts)
         }
     }
 
-    public func reset() {
+    public func reset() async {
         tokensBySender.removeAll()
         tokenFrequencies = Frequencies(expectedItems: expectedSenders)
-        notifyListeners()
+        await notifyListeners()
     }
 
     public func register(listener: TokensByCountListener) async {
-        listener.countsReceived(
+        await listener.countsReceived(
             Counts(tokensByCount: tokenFrequencies.itemsByCount)
         )
 
@@ -112,7 +112,7 @@ extension SendersByTokenCounter: ChatMessageListener {
                 byAdding: newToken, andRemoving: oldToken
             )
 
-            notifyListeners()
+            await notifyListeners()
         } else {
             Self.log.info("No token extracted")
             await rejectedMessages.newMessage(msg)

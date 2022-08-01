@@ -3,42 +3,42 @@ import Vapor
 let jsonEncoder = JSONEncoder() // TODO use Vapor's global JSON encoder if possible
 
 extension WebSocket: TokensByCountListener {
-    public func countsReceived(_ counts: Counts) {
+    public func countsReceived(_ counts: Counts) async {
         if let json = counts.json {
-            send(json)
+            try? await send(json)
         }
     }
 }
 
 extension WebSocket: ApprovedMessagesListener {
-    public func messagesReceived(_ msgs: Messages) {
+    public func messagesReceived(_ msgs: Messages) async {
         if
             let data = try? jsonEncoder.encode(msgs),
             let json = String(data: data, encoding: .utf8)
         {
-            send(json)
+            try? await send(json)
         }
     }
 }
 
 extension WebSocket: TranscriptionListener {
-    public func transcriptionReceived(_ transcript: Transcript) {
+    public func transcriptionReceived(_ transcript: Transcript) async {
         if
             let data = try? jsonEncoder.encode(transcript),
             let json = String(data: data, encoding: .utf8)
         {
-            send(json)
+            try? await send(json)
         }
     }
 }
 
 extension WebSocket: ChatMessageListener {
-    public func messageReceived(_ msg: ChatMessage) {
+    public func messageReceived(_ msg: ChatMessage) async {
         if
             let data = try? jsonEncoder.encode(msg),
             let json = String(data: data, encoding: .utf8)
         {
-            send(json)
+            try? await send(json)
         }
     }
 }

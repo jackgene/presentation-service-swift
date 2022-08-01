@@ -9,7 +9,7 @@ public struct Transcript: Encodable {
 }
 
 public protocol TranscriptionListener: AnyObject {
-    func transcriptionReceived(_: Transcript)
+    func transcriptionReceived(_: Transcript) async
 }
 
 public actor TranscriptionBroadcaster {
@@ -18,11 +18,11 @@ public actor TranscriptionBroadcaster {
 
     public init() {}
 
-    public func newTranscriptionText(_ text: String) {
+    public func newTranscriptionText(_ text: String) async {
         Self.log.info("Received transcription text - \(text)")
         let transcript = Transcript(text: text)
-        listeners.forEach {
-            $0.instance.transcriptionReceived(transcript)
+        for listener in listeners {
+            await listener.instance.transcriptionReceived(transcript)
         }
     }
 

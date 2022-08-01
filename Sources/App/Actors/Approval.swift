@@ -5,7 +5,7 @@ public struct Messages: Encodable {
 }
 
 public protocol ApprovedMessagesListener: AnyObject {
-    func messagesReceived(_: Messages)
+    func messagesReceived(_: Messages) async
 }
 
 public actor MessageApprovalRouter {
@@ -31,21 +31,21 @@ public actor MessageApprovalRouter {
         self.chatText = chatText
     }
 
-    private func notifyListeners() {
+    private func notifyListeners() async {
         let msgs = Messages(chatText: chatText.reversed())
-        listeners.forEach {
-            $0.instance.messagesReceived(msgs)
+        for listener in listeners {
+            await listener.instance.messagesReceived(msgs)
         }
     }
 
-    public func reset() {
+    public func reset() async {
         chatText.removeAll()
-        notifyListeners()
+        await notifyListeners()
     }
 
     public func register(listener: ApprovedMessagesListener) async {
         let msgs = Messages(chatText: chatText.reversed())
-        listener.messagesReceived(msgs)
+        await listener.messagesReceived(msgs)
 
         if listeners.isEmpty {
             await chatMessages.register(listener: self)
@@ -71,6 +71,6 @@ extension MessageApprovalRouter: ChatMessageListener {
         }
 
         chatText.append(msg.text)
-        notifyListeners()
+        await notifyListeners()
     }
 }
