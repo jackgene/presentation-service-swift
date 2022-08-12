@@ -16183,9 +16183,9 @@ for (var publicModule in Elm)
 </script></head><body><script type="text/javascript">Elm.Moderator.fullscreen()</script></body></html>
 """#)
 
-let transcriptionHtml = HTML(source: #"""
+let transcriberHtml = HTML(source: #"""
 <!DOCTYPE HTML>
-<html><head><meta charset="UTF-8"><title>Transcription</title><style>html,head,body { padding:0; margin:0; }
+<html><head><meta charset="UTF-8"><title>Transcriber</title><style>html,head,body { padding:0; margin:0; }
 body { font-family: calibri, helvetica, arial, sans-serif; }</style><script type="text/javascript">
 (function() {
 'use strict';

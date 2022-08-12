@@ -128,17 +128,15 @@ func routes(_ app: Application) throws {
     }
 
     // Transcription
-    app.group("transcription") { route in
-        route.get { _ in return transcriptionHtml }
+    app.get("transcriber") { _ in return transcriberHtml }
 
-        route.post { req -> Response in
-            guard let text: String = req.query["text"] else {
-                throw Abort(.badRequest, reason: #"missing "text" parameter"#)
-            }
-
-            await transcriptions.newTranscriptionText(text)
-
-            return Response(status: .noContent)
+    app.post("transcription") { req -> Response in
+        guard let text: String = req.query["text"] else {
+            throw Abort(.badRequest, reason: #"missing "text" parameter"#)
         }
+
+        await transcriptions.newTranscriptionText(text)
+
+        return Response(status: .noContent)
     }
 }
