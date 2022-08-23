@@ -1,11 +1,32 @@
 import Vapor
 
 let jsonEncoder = JSONEncoder() // TODO use Vapor's global JSON encoder if possible
+let batchPeriodNanos: UInt64 = 250_000_000
 
-extension WebSocket: TokensByCountListener {
+actor LanguagePollListener: TokensByCountListener {
+    let webSocket: WebSocket
+    var counts: Counts = Counts(tokensByCount: [:])
+    var awaitingSend: Bool = false
+
+    init(webSocket: WebSocket) {
+        self.webSocket = webSocket
+    }
+
     public func countsReceived(_ counts: Counts) async {
+        self.counts = counts
+        if !awaitingSend {
+            awaitingSend = true
+            Task {
+                try await Task.sleep(nanoseconds: batchPeriodNanos)
+                await send()
+            }
+        }
+    }
+
+    func send() async {
+        defer { awaitingSend = false }
         if let json = counts.json {
-            try? await send(json)
+            try? await webSocket.send(json)
         }
     }
 }
@@ -62,10 +83,11 @@ func routes(_ app: Application) throws {
     // Deck
     app.group("event") { route in
         route.webSocket("language-poll") { _, ws in
-            await languagePoll.register(listener: ws)
+            let listener = LanguagePollListener(webSocket: ws)
+            await languagePoll.register(listener: listener)
 
             try? await ws.onClose.get()
-            await languagePoll.unregister(listener: ws)
+            await languagePoll.unregister(listener: listener)
         }
 
         route.webSocket("question") { _, ws in
