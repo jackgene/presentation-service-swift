@@ -124,21 +124,26 @@ func routes(_ app: Application) throws {
             throw Abort(.badRequest, reason: #"missing "text" parameter"#)
         }
 
-        let sender: String
-        let recipient: String
-        if route.hasSuffix(" to Me") {
-            sender = String(route.dropLast(6))
+        let sender: String?
+        let recipient: String?
+        if route.hasSuffix(" to Me (Direct Message)") {
+            sender = String(route.dropLast(23))
             recipient = "Me"
         } else if route.hasSuffix(" to Everyone") {
             sender = String(route.dropLast(12))
             recipient = "Everyone"
+        } else if route.hasPrefix("Me ") {
+            sender = nil
+            recipient = nil
         } else {
-            throw Abort(.badRequest, reason: #"malformed "route""#)
+            throw Abort(.badRequest, reason: #"malformed "route": \#(route)"#)
         }
 
-        await chatMessages.newMessage(
-            ChatMessage(sender: sender, recipient: recipient, text: text)
-        )
+        if let sender = sender, let recipient = recipient {
+            await chatMessages.newMessage(
+                ChatMessage(sender: sender, recipient: recipient, text: text)
+            )
+        }
 
         return Response(status: .noContent)
     }
