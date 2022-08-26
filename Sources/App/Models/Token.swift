@@ -1,3 +1,5 @@
+import Foundation
+
 private let languagesByName: [String: String] = [
     // GoodRx Languages
     // Go
@@ -57,7 +59,9 @@ private let languagesByName: [String: String] = [
 func tokenFromFirstWord(_ byName: [String: String], text: String) -> String? {
     let normalizedFirstWord: String? = text
         .trimmingCharacters(in: .whitespacesAndNewlines)
-        .components(separatedBy: .whitespacesAndNewlines)
+        .components(
+            separatedBy: .whitespacesAndNewlines.union(CharacterSet(charactersIn: "!,./"))
+        )
         .first?.lowercased()
     return normalizedFirstWord.flatMap { byName[$0] }
 }
