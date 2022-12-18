@@ -115,11 +115,12 @@ struct PresentationServer: ParsableCommand {
             return .raw(204, "No Content", nil, nil)
         }
         server.GET["/reset"] = { _ in
-            .raw(204, "No Content", nil, nil)
+            Task { await questions.reset() }
+            return .raw(204, "No Content", nil, nil)
         }
 
         // Transcriber
-        server.GET["/transcriber"] = { _ in .ok(.htmlBody(transcriberHtml)) }
+        server.GET["/transcription"] = { _ in .ok(.htmlBody(transcriptionHtml)) }
         server.POST["/transcription"] = { req in
             guard let text: String = req.queryParam("text") else {
                 return .badRequest(nil)

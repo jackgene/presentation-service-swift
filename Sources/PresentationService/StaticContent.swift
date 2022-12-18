@@ -16167,7 +16167,7 @@ for (var publicModule in Elm)
 </script></head><body><script type="text/javascript">Elm.Moderator.fullscreen()</script></body></html>
 """#
 
-let transcriberHtml: String = #"""
+let transcriptionHtml: String = #"""
 <!DOCTYPE HTML>
 <html><head><meta charset="UTF-8"><title>Transcriber</title><style>html,head,body { padding:0; margin:0; }
 body { font-family: calibri, helvetica, arial, sans-serif; }</style><script type="text/javascript">
@@ -30778,29 +30778,33 @@ var _jackgene$live_deck$Transcriber$view = function (model) {
                     _0: _rtfeldman$elm_css$Html_Styled_Events$onInput(_jackgene$live_deck$Transcriber$NewTranscription),
                     _1: {
                         ctor: '::',
-                        _0: _rtfeldman$elm_css$Html_Styled_Attributes$css(
-                            {
-                                ctor: '::',
-                                _0: _rtfeldman$elm_css$Css$position(_rtfeldman$elm_css$Css$absolute),
-                                _1: {
+                        _0: _rtfeldman$elm_css$Html_Styled_Attributes$cols(120),
+                        _1: {
+                            ctor: '::',
+                            _0: _rtfeldman$elm_css$Html_Styled_Attributes$css(
+                                {
                                     ctor: '::',
-                                    _0: _rtfeldman$elm_css$Css$top(_rtfeldman$elm_css$Css$zero),
+                                    _0: _rtfeldman$elm_css$Css$position(_rtfeldman$elm_css$Css$absolute),
                                     _1: {
                                         ctor: '::',
-                                        _0: _rtfeldman$elm_css$Css$right(_rtfeldman$elm_css$Css$zero),
+                                        _0: _rtfeldman$elm_css$Css$top(_rtfeldman$elm_css$Css$zero),
                                         _1: {
                                             ctor: '::',
-                                            _0: _rtfeldman$elm_css$Css$bottom(_rtfeldman$elm_css$Css$zero),
+                                            _0: _rtfeldman$elm_css$Css$right(_rtfeldman$elm_css$Css$zero),
                                             _1: {
                                                 ctor: '::',
-                                                _0: _rtfeldman$elm_css$Css$left(_rtfeldman$elm_css$Css$zero),
-                                                _1: {ctor: '[]'}
+                                                _0: _rtfeldman$elm_css$Css$bottom(_rtfeldman$elm_css$Css$zero),
+                                                _1: {
+                                                    ctor: '::',
+                                                    _0: _rtfeldman$elm_css$Css$left(_rtfeldman$elm_css$Css$zero),
+                                                    _1: {ctor: '[]'}
+                                                }
                                             }
                                         }
                                     }
-                                }
-                            }),
-                        _1: {ctor: '[]'}
+                                }),
+                            _1: {ctor: '[]'}
+                        }
                     }
                 },
                 {ctor: '[]'}),
