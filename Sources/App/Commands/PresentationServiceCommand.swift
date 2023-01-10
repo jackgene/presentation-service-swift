@@ -51,7 +51,7 @@ public final class PresentationServiceCommand: Command {
     /// Create a new `ServeCommand`.
     init() {
         self.signalSources = []
-        self.didShutdown = false
+        self.didShutdown = true
     }
 
     /// See `Command`.
@@ -105,6 +105,8 @@ public final class PresentationServiceCommand: Command {
         }
         makeSignalSource(SIGTERM)
         makeSignalSource(SIGINT)
+
+        self.didShutdown = false
     }
 
     func shutdown() {
