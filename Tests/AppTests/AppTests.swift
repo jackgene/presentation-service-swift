@@ -2,14 +2,15 @@
 import XCTVapor
 
 final class AppTests: XCTestCase {
-    func testHelloWorld() throws {
+    func testLoadModerator() throws {
         let app = Application(.testing)
         defer { app.shutdown() }
+//        defer { (app.commands.defaultCommand as? PresentationServiceCommand)?.shutdown() }
         try configure(app)
 
-        try app.test(.GET, "hello", afterResponse: { res in
+        try app.test(.GET, "/moderator", afterResponse: { res in
             XCTAssertEqual(res.status, .ok)
-            XCTAssertEqual(res.body.string, "Hello, world!")
+            XCTAssertContains(res.body.string, "<title>Moderator</title>")
         })
     }
 }
