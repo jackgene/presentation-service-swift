@@ -7,11 +7,11 @@ actor LanguagePollListener: TokensByCountListener {
     let webSocket: WebSocket
     var counts: Counts = Counts(tokensByCount: [:])
     var awaitingSend: Bool = false
-
+    
     init(webSocket: WebSocket) {
         self.webSocket = webSocket
     }
-
+    
     public func countsReceived(_ counts: Counts) async {
         self.counts = counts
         if !awaitingSend {
@@ -22,7 +22,7 @@ actor LanguagePollListener: TokensByCountListener {
             }
         }
     }
-
+    
     func send() async {
         defer { awaitingSend = false }
         if let json = counts.json {
@@ -79,39 +79,39 @@ func routes(_ app: Application) throws {
         expectedCount: 10
     )
     let transcriptions = TranscriptionBroadcaster()
-
+    
     // Deck
     app.group("event") { route in
         route.webSocket("language-poll") { _, ws in
             let listener = LanguagePollListener(webSocket: ws)
             await languagePoll.register(listener: listener)
-
+            
             try? await ws.onClose.get()
             await languagePoll.unregister(listener: listener)
         }
-
+        
         route.webSocket("question") { _, ws in
             await questions.register(listener: ws)
-
+            
             try? await ws.onClose.get()
             await questions.unregister(listener: ws)
         }
-
+        
         route.webSocket("transcription") { _, ws in
             await transcriptions.register(listener: ws)
-
+            
             try? await ws.onClose.get()
             await transcriptions.unregister(listener: ws)
         }
     }
-
+    
     // Moderation
     app.group("moderator") { route in
         route.get { _ in return moderatorHtml }
-
+        
         route.webSocket("event") { _, ws in
             await rejectedMessages.register(listener: ws)
-
+            
             try? await ws.onClose.get()
             await rejectedMessages.unregister(listener: ws)
         }
@@ -123,7 +123,7 @@ func routes(_ app: Application) throws {
         guard let text: String = req.query["text"] else {
             throw Abort(.badRequest, reason: #"missing "text" parameter"#)
         }
-
+        
         let sender: String?
         let recipient: String?
         if route.hasSuffix(" to Me (Direct Message)") {
@@ -138,32 +138,32 @@ func routes(_ app: Application) throws {
         } else {
             throw Abort(.badRequest, reason: #"malformed "route": \#(route)"#)
         }
-
+        
         if let sender = sender, let recipient = recipient {
             await chatMessages.newMessage(
                 ChatMessage(sender: sender, recipient: recipient, text: text)
             )
         }
-
+        
         return Response(status: .noContent)
     }
     app.get("reset") { _ -> Response in
         await languagePoll.reset()
         await questions.reset()
-
+        
         return Response(status: .noContent)
     }
-
+    
     // Transcription
     app.get("transcriber") { _ in return transcriberHtml }
-
+    
     app.post("transcription") { req -> Response in
         guard let text: String = req.query["text"] else {
             throw Abort(.badRequest, reason: #"missing "text" parameter"#)
         }
-
+        
         await transcriptions.newTranscriptionText(text)
-
+        
         return Response(status: .noContent)
     }
 }

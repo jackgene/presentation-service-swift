@@ -16,7 +16,7 @@ private let languagesByName: [String: String] = [
     // TypeScript
     "ts": "TypeScript",
     "typescript": "TypeScript",
-
+    
     // Others
     // C/C++
     "c": "C",

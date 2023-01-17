@@ -4,7 +4,7 @@ struct Metrics {
     private let lock: NSLock = NSLock()
     private var valuesByTime: [(Int,Int)] = []
     private(set) var value: Int = 0
-
+    
     mutating func record(newValue: Int) {
         lock.lock()
         defer { lock.unlock() }
