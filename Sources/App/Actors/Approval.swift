@@ -15,7 +15,7 @@ public actor MessageApprovalRouter {
     private let rejectedMessages: ChatMessageBroadcaster
     private var chatText: [String]
     private var listeners: Set<HashableInstance<ApprovedMessagesListener>> = []
-
+    
     public init(
         name: String,
         chatMessages: ChatMessageBroadcaster,
@@ -25,35 +25,35 @@ public actor MessageApprovalRouter {
         self.name = name
         self.chatMessages = chatMessages
         self.rejectedMessages = rejectedMessages
-
+        
         var chatText: [String] = []
         chatText.reserveCapacity(expectedCount)
         self.chatText = chatText
     }
-
+    
     private func notifyListeners() async {
         let msgs = Messages(chatText: chatText.reversed())
         for listener in listeners {
             await listener.instance.messagesReceived(msgs)
         }
     }
-
+    
     public func reset() async {
         chatText.removeAll()
         await notifyListeners()
     }
-
+    
     public func register(listener: ApprovedMessagesListener) async {
         let msgs = Messages(chatText: chatText.reversed())
         await listener.messagesReceived(msgs)
-
+        
         if listeners.isEmpty {
             await chatMessages.register(listener: self)
         }
         listeners.insert(HashableInstance(listener))
         Self.log.info("+1 \(name) listener (=\(listeners.count))")
     }
-
+    
     public func unregister(listener: ApprovedMessagesListener) async {
         listeners.remove(HashableInstance(listener))
         if listeners.isEmpty {
@@ -69,7 +69,7 @@ extension MessageApprovalRouter: ChatMessageListener {
             await rejectedMessages.newMessage(msg)
             return
         }
-
+        
         chatText.append(msg.text)
         await notifyListeners()
     }
