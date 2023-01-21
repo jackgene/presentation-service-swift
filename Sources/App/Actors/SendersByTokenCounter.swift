@@ -2,7 +2,7 @@ import Logging
 
 public struct Counts {
     public enum PairElement: Encodable {
-        case count(number: Int)
+        case count(number: UInt)
         case tokens(values: [String])
 
         public func encode(to encoder: Encoder) throws {
@@ -17,10 +17,10 @@ public struct Counts {
         }
     }
 
-    public let tokensByCount: [Int: [String]]
+    public let tokensByCount: [UInt: [String]]
     public let json: String?
 
-    init(tokensByCount: [Int: [String]]) {
+    init(tokensByCount: [UInt: [String]]) {
         self.tokensByCount = tokensByCount
 
         let encodableTokensByCount: [[PairElement]] = tokensByCount
@@ -42,7 +42,7 @@ public actor SendersByTokenCounter {
     private let rejectedMessages: ChatMessageBroadcaster
     private let expectedSenders: Int
     private var tokensBySender: [String: String]
-    private var tokenFrequencies: Frequencies
+    private var tokenCounts: MultiSet<String>
     private var listeners: Set<HashableInstance<TokensByCountListener>> = []
 
     public init(
@@ -59,11 +59,11 @@ public actor SendersByTokenCounter {
         self.expectedSenders = expectedSenders
 
         tokensBySender = [String: String](minimumCapacity: expectedSenders)
-        tokenFrequencies = Frequencies(expectedItems: expectedSenders)
+        tokenCounts = MultiSet(expectedElements: expectedSenders)
     }
 
     private func notifyListeners() async {
-        let counts = Counts(tokensByCount: tokenFrequencies.itemsByCount)
+        let counts = Counts(tokensByCount: tokenCounts.elementsByCount)
         for listener in listeners {
             await listener.instance.countsReceived(counts)
         }
@@ -71,13 +71,13 @@ public actor SendersByTokenCounter {
 
     public func reset() async {
         tokensBySender.removeAll()
-        tokenFrequencies = Frequencies(expectedItems: expectedSenders)
+        tokenCounts = MultiSet(expectedElements: expectedSenders)
         await notifyListeners()
     }
 
     public func register(listener: TokensByCountListener) async {
         await listener.countsReceived(
-            Counts(tokensByCount: tokenFrequencies.itemsByCount)
+            Counts(tokensByCount: tokenCounts.elementsByCount)
         )
 
         if listeners.isEmpty {
@@ -108,7 +108,7 @@ extension SendersByTokenCounter: ChatMessageListener {
                 self.tokensBySender.updateValue(newToken, forKey: sender)
             }
 
-            self.tokenFrequencies = tokenFrequencies.updated(
+            self.tokenCounts = tokenCounts.updated(
                 byAdding: newToken, andRemoving: oldToken
             )
 
