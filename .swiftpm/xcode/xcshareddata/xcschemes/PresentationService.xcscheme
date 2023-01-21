@@ -105,9 +105,9 @@
       <MacroExpansion>
          <BuildableReference
             BuildableIdentifier = "primary"
-            BlueprintIdentifier = "PresentationService"
-            BuildableName = "PresentationService"
-            BlueprintName = "PresentationService"
+            BlueprintIdentifier = "App"
+            BuildableName = "App"
+            BlueprintName = "App"
             ReferencedContainer = "container:">
          </BuildableReference>
       </MacroExpansion>
@@ -117,7 +117,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--html-path &quot;/Users/jleow/Development/Personal/Zoom Presenter/strongly-typed-presentation/public/html/deck.html&quot;"
+            argument = "--html-path &quot;/Users/jleow/Development/Personal/Zoom Presenter/talks/docs/strongly-typed.html&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
