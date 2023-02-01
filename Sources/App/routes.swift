@@ -1,7 +1,7 @@
 import Vapor
 
 let jsonEncoder = JSONEncoder() // TODO use Vapor's global JSON encoder if possible
-let batchPeriodNanos: UInt64 = 250_000_000
+let batchPeriodNanos: UInt64 = 100_000_000
 
 actor LanguagePollListener: TokensByCountListener {
     let webSocket: WebSocket
