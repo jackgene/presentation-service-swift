@@ -1,7 +1,7 @@
 /// Mutable MultiSet. Not thread-safe.
 public struct MultiSet<Element> where Element: Hashable {
     var countsByElement: [Element: UInt]
-    var elementsByCount: [UInt: [Element]]
+    public internal(set) var elementsByCount: [UInt: [Element]]
     
     public init(expectedElements: Int) {
         self.countsByElement = Dictionary(minimumCapacity: expectedElements)
