@@ -11,7 +11,9 @@ let package = Package(
         .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
         // Tests
         .package(url: "https://github.com/nschum/SwiftHamcrest.git", from: "2.2.2"),
-        .package(url: "https://github.com/typelift/SwiftCheck.git", from: "0.12.0")
+        .package(url: "https://github.com/typelift/SwiftCheck.git", from: "0.12.0"),
+        // Benchmark
+        .package(url: "https://github.com/apple/swift-collections-benchmark", from: "0.0.3"),
     ],
     targets: [
         .target(
@@ -28,6 +30,13 @@ let package = Package(
             ]
         ),
         .executableTarget(name: "Run", dependencies: [.target(name: "App")]),
+        .executableTarget(
+            name: "Benchmark",
+            dependencies: [
+                .target(name: "App"),
+                .product(name: "CollectionsBenchmark", package: "swift-collections-benchmark"),
+            ]
+        ),
         .testTarget(
             name: "AppTests",
             dependencies: [

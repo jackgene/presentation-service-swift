@@ -1,90 +1,68 @@
-struct MultiSet<Element> where Element: Hashable {
-    static func update(item: Element, delta: Int,
-                       countsByItem: inout [Element: UInt],
-                       itemsByCount: inout [UInt: [Element]]) {
-        guard delta != 0 else {
+/// Mutable MultiSet. Not thread-safe.
+public struct MultiSet<Element> where Element: Hashable {
+    var countsByElement: [Element: UInt]
+    var elementsByCount: [UInt: [Element]]
+    
+    public init(expectedElements: Int) {
+        self.countsByElement = Dictionary(minimumCapacity: expectedElements)
+        self.elementsByCount = Dictionary(minimumCapacity: expectedElements)
+    }
+    
+    private mutating func add(element: Element) {
+        let oldCount: UInt = countsByElement[element] ?? 0
+        guard oldCount != UInt.max else {
             return
         }
         
-        let oldCount: UInt = countsByItem[item] ?? 0
-        let newCount: UInt
-        if delta > 0 {
-            let (partial, overflow) = oldCount.addingReportingOverflow(UInt(delta))
-            
-            newCount = overflow ? UInt.max : partial
-        } else {
-            let (partial, overflow) = oldCount.subtractingReportingOverflow(UInt(-delta))
-            
-            newCount = overflow ? UInt.min : partial
+        let newCount: UInt = oldCount + 1
+        
+        // Update countsByElement
+        countsByElement[element] = newCount
+        
+        // Update elementsByCount
+        var newCountElems: [Element] = elementsByCount[newCount] ?? []
+        newCountElems.append(element)
+        elementsByCount[newCount] = newCountElems
+        
+        if let oldCountItems: [Element] = elementsByCount[oldCount] {
+            if oldCountItems.count == 1 && oldCountItems[0] == element {
+                elementsByCount[oldCount] = nil
+            } else {
+                elementsByCount[oldCount] = oldCountItems.filter { $0 != element }
+            }
         }
+    }
+    
+    private mutating func remove(element: Element) {
+        guard let oldCount: UInt = countsByElement[element] else {
+            return
+        }
+        
+        let newCount: UInt = oldCount - 1
         
         if newCount == 0 {
-            countsByItem[item] = nil
+            countsByElement[element] = nil
         } else {
-            countsByItem[item] = newCount
+            countsByElement[element] = newCount
             
-            var newCountItems: [Element] = itemsByCount[newCount] ?? []
-            if delta > 0 { newCountItems.append(item) }
-            else { newCountItems.insert(item, at: 0) }
-            itemsByCount.updateValue(
-                newCountItems,
-                forKey: newCount
-            )
+            var newCountItems: [Element] = elementsByCount[newCount] ?? []
+            newCountItems.insert(element, at: 0)
+            elementsByCount[newCount] = newCountItems
         }
         
-        // Remove itemsByCount for old count
-        let oldCountItems: [Element] = (itemsByCount[oldCount] ?? []).filter { $0 != item }
-        itemsByCount[oldCount] = oldCountItems.isEmpty ? nil : oldCountItems
+        if let oldCountItems: [Element] = elementsByCount[oldCount] {
+            if oldCountItems.count == 1 && oldCountItems[0] == element {
+                elementsByCount[oldCount] = nil
+            } else {
+                elementsByCount[oldCount] = oldCountItems.filter { $0 != element }
+            }
+        }
     }
     
-    // internal instead of private for testability
-    static func increment(element: Element,
-                          countsByElement: inout [Element: UInt],
-                          elementsByCount: inout [UInt: [Element]]) {
-        update(item: element, delta: 1, countsByItem: &countsByElement, itemsByCount: &elementsByCount)
-    }
-    
-    // internal instead of private for testability
-    static func decrement(element: Element,
-                          countsByElement: inout [Element: UInt],
-                          elementsByCount: inout [UInt: [Element]]) {
-        update(item: element, delta: -1, countsByItem: &countsByElement, itemsByCount: &elementsByCount)
-    }
-    
-    let countsByElement: [Element: UInt]
-    let elementsByCount: [UInt: [Element]]
-    
-    public init(expectedElements: Int) {
-        self.countsByElement = [Element: UInt](minimumCapacity: expectedElements)
-        self.elementsByCount = [UInt: [Element]](minimumCapacity: expectedElements)
-    }
-    
-    // internal instead of private for testability
-    init(countsByElement: [Element: UInt], elementsByCount: [UInt: [Element]]) {
-        self.countsByElement = countsByElement
-        self.elementsByCount = elementsByCount
-    }
-    
-    public func updated(byAdding addition: Element,
-                        andRemoving removal: Element? = nil) -> MultiSet {
-        var countsByElement = self.countsByElement
-        var elementsByCount = self.elementsByCount
-        Self.increment(
-            element: addition,
-            countsByElement: &countsByElement,
-            elementsByCount: &elementsByCount
-        )
+    public mutating func update(byAdding addition: Element, andRemoving removal: Element? = nil) {
+        add(element: addition)
         if let removal = removal {
-            Self.decrement(
-                element: removal,
-                countsByElement: &countsByElement,
-                elementsByCount: &elementsByCount
-            )
+            remove(element: removal)
         }
-        
-        return MultiSet(
-            countsByElement: countsByElement,
-            elementsByCount: elementsByCount
-        )
     }
 }
