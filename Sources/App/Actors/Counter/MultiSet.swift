@@ -65,4 +65,6 @@ public struct MultiSet<Element> where Element: Hashable {
             remove(element: removal)
         }
     }
+    
+    public var description: String { "MultiSet(\(countsByElement))" }
 }
