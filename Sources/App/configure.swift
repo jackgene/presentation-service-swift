@@ -1,7 +1,7 @@
 import Vapor
 
 // configures your application
-public func configure(_ app: Application) throws {
+public func configure(_ app: Application) {
     app.commands.use(PresentationServiceCommand(), as: "present", isDefault: true)
     
     app.http.server.configuration = .init(hostname: "0.0.0.0", port: 8973)
@@ -10,5 +10,5 @@ public func configure(_ app: Application) throws {
     // app.middleware.use(FileMiddleware(publicDirectory: app.directory.publicDirectory))
     
     // register routes
-    try routes(app)
+    routes(app)
 }

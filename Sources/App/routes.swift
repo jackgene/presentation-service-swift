@@ -82,7 +82,7 @@ extension WebSocket: ChatMessageListener {
     }
 }
 
-func routes(_ app: Application) throws {
+func routes(_ app: Application) {
     let chatMessages = ChatMessageBroadcaster(name: "chat")
     let rejectedMessages = ChatMessageBroadcaster(name: "rejected")
     let languagePoll = SendersByTokenCounter(
