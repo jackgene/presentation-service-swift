@@ -1,6 +1,6 @@
 import Logging
 
-public struct Counts {
+public struct Counts: Encodable {
     public enum PairElement: Encodable {
         case count(number: UInt)
         case tokens(values: [String])
@@ -17,14 +17,12 @@ public struct Counts {
         }
     }
     
-    public let json: String?
+    public let tokensAndCounts: [[PairElement]]
     
     init(tokensByCount: [UInt: [String]]) {
-        let encodableTokensAndCounts: [[PairElement]] = tokensByCount
+        self.tokensAndCounts = tokensByCount
             .map { [.count(number: $0), .tokens(values: $1)] }
-        self.json = (try? jsonEncoder.encode(encodableTokensAndCounts))
-            .flatMap { String(data: $0, encoding: .utf8) }
-            .map { #"{"tokensAndCounts":\#($0)}"# }
+        // TODO optimization opportunity to pre-encode JSON
     }
 }
 
