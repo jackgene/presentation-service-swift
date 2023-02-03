@@ -1,7 +1,22 @@
 import Vapor
 
-let jsonEncoder = JSONEncoder() // TODO use Vapor's global JSON encoder if possible
 let batchPeriodNanos: UInt64 = 100_000_000
+
+extension WebSocket {
+    private static let log = Logger(label: "WebSocket")
+    fileprivate static let jsonEncoder: JSONEncoder = {
+        guard
+            let untypedEncoder: ContentEncoder =
+                try? ContentConfiguration.global.requireEncoder(for: .json),
+            let jsonEncoder = untypedEncoder as? JSONEncoder
+        else {
+            log.warning("Unable to obtain global JSON encoder, creating new")
+            return JSONEncoder()
+        }
+        
+        return jsonEncoder
+    }()
+}
 
 actor LanguagePollListener: TokensByCountListener {
     let webSocket: WebSocket
@@ -25,7 +40,10 @@ actor LanguagePollListener: TokensByCountListener {
     
     func send() async {
         defer { awaitingSend = false }
-        if let json = counts.json {
+        if
+            let data = try? WebSocket.jsonEncoder.encode(counts),
+            let json = String(data: data, encoding: .utf8)
+        {
             try? await webSocket.send(json)
         }
     }
@@ -34,7 +52,7 @@ actor LanguagePollListener: TokensByCountListener {
 extension WebSocket: ApprovedMessagesListener {
     public func messagesReceived(_ msgs: Messages) async {
         if
-            let data = try? jsonEncoder.encode(msgs),
+            let data = try? Self.jsonEncoder.encode(msgs),
             let json = String(data: data, encoding: .utf8)
         {
             try? await send(json)
@@ -45,7 +63,7 @@ extension WebSocket: ApprovedMessagesListener {
 extension WebSocket: TranscriptionListener {
     public func transcriptionReceived(_ transcript: Transcript) async {
         if
-            let data = try? jsonEncoder.encode(transcript),
+            let data = try? Self.jsonEncoder.encode(transcript),
             let json = String(data: data, encoding: .utf8)
         {
             try? await send(json)
@@ -56,7 +74,7 @@ extension WebSocket: TranscriptionListener {
 extension WebSocket: ChatMessageListener {
     public func messageReceived(_ msg: ChatMessage) async {
         if
-            let data = try? jsonEncoder.encode(msg),
+            let data = try? Self.jsonEncoder.encode(msg),
             let json = String(data: data, encoding: .utf8)
         {
             try? await send(json)
