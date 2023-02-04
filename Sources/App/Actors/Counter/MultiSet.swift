@@ -28,7 +28,8 @@ public struct MultiSet<Element> where Element : Hashable {
             if oldCountItems.count == 1 && oldCountItems[0] == element {
                 elementsByCount[oldCount] = nil
             } else {
-                elementsByCount[oldCount] = oldCountItems.filter { $0 != element }
+                elementsByCount[oldCount] = oldCountItems
+                    .filter { $0 != element }
             }
         }
     }
@@ -54,12 +55,15 @@ public struct MultiSet<Element> where Element : Hashable {
             if oldCountItems.count == 1 && oldCountItems[0] == element {
                 elementsByCount[oldCount] = nil
             } else {
-                elementsByCount[oldCount] = oldCountItems.filter { $0 != element }
+                elementsByCount[oldCount] = oldCountItems
+                    .filter { $0 != element }
             }
         }
     }
     
-    public mutating func update(byAdding addition: Element, andRemoving removal: Element? = nil) {
+    public mutating func update(
+        byAdding addition: Element, andRemoving removal: Element? = nil
+    ) {
         add(element: addition)
         if let removal = removal {
             remove(element: removal)
