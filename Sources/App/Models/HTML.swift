@@ -14,7 +14,7 @@ extension HTML: ResponseEncodable {
     }
 }
 
-let moderatorHtml = HTML(source: #"""
+let moderatorHTML = HTML(source: #"""
 <!DOCTYPE HTML>
 <html><head><meta charset="UTF-8"><title>Moderator</title><style>html,head,body { padding:0; margin:0; }
 body { font-family: calibri, helvetica, arial, sans-serif; }</style><script type="text/javascript">
@@ -16183,7 +16183,7 @@ for (var publicModule in Elm)
 </script></head><body><script type="text/javascript">Elm.Moderator.fullscreen()</script></body></html>
 """#)
 
-let transcriberHtml = HTML(source: #"""
+let transcriberHTML = HTML(source: #"""
 <!DOCTYPE HTML>
 <html><head><meta charset="UTF-8"><title>Transcriber</title><style>html,head,body { padding:0; margin:0; }
 body { font-family: calibri, helvetica, arial, sans-serif; }</style><script type="text/javascript">
