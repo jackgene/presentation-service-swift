@@ -6,7 +6,7 @@ final class AppTests: XCTestCase {
     func testLoadModerator() throws {
         let app = Application(.testing)
         defer { app.shutdown() }
-        configure(app)
+        try configure(app)
         
         try app.test(.GET, "/moderator", afterResponse: { res in
             assertThat(res.status, equalTo(.ok))
@@ -17,7 +17,7 @@ final class AppTests: XCTestCase {
     func testLoadTranscriber() throws {
         let app = Application(.testing)
         defer { app.shutdown() }
-        configure(app)
+        try configure(app)
 
         try app.test(.GET, "/transcriber", afterResponse: { res in
             assertThat(res.status, equalTo(.ok))

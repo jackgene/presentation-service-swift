@@ -33,28 +33,36 @@ public protocol TokensByCountListener: AnyObject {
 public actor SendersByTokenCounter {
     private static let log = Logger(label: "SendersByTokenCounter")
     private let name: String
-    private let extractToken: (String) -> String?
+    private let extractTokens: (String) -> [String]
     private let chatMessages: ChatMessageBroadcaster
     private let rejectedMessages: ChatMessageBroadcaster
+    private let defaultTokenSet: FIFOFixedSizedSet<String>
     private let expectedSenders: Int
-    private var tokensBySender: [String: String]
+    private var tokensBySender: [String: FIFOFixedSizedSet<String>]
     private var tokenCounts: MultiSet<String>
     private var listeners: Set<HashableInstance<TokensByCountListener>> = []
     
-    public init(
+    public init?(
         name: String,
-        extractToken: @escaping (String) -> String?,
+        extractTokens: @escaping (String) -> [String],
+        tokensPerSender: Int,
         chatMessages: ChatMessageBroadcaster,
         rejectedMessages: ChatMessageBroadcaster,
         expectedSenders: Int
     ) {
+        guard
+            let emptyTokenSet = FIFOFixedSizedSet<String>(
+                maximumCapacity: tokensPerSender
+            )
+        else { return nil }
         self.name = name
-        self.extractToken = extractToken
+        self.extractTokens = extractTokens
         self.chatMessages = chatMessages
         self.rejectedMessages = rejectedMessages
+        self.defaultTokenSet = emptyTokenSet
         self.expectedSenders = expectedSenders
         
-        tokensBySender = [String: String](minimumCapacity: expectedSenders)
+        tokensBySender = [String: FIFOFixedSizedSet<String>](minimumCapacity: expectedSenders)
         tokenCounts = MultiSet(expectedElements: expectedSenders)
     }
     
@@ -94,17 +102,27 @@ public actor SendersByTokenCounter {
 
 extension SendersByTokenCounter: ChatMessageListener {
     public func messageReceived(_ msg: ChatMessage) async {
-        let sender: String? = msg.sender != "Me" ? msg.sender : nil
-        let oldToken: String? = sender.flatMap { tokensBySender[$0] }
-        let newToken: String? = extractToken(msg.text)
+        let sender: String? = msg.sender != "" ? msg.sender : nil
+        let extractedTokens: [String] = extractTokens(msg.text)
         
-        if let newToken = newToken {
-            Self.log.info(#"Extracted token "\#(newToken)""#)
+        if !extractedTokens.isEmpty {
+            Self.log.info(#"Extracted tokens "\#(extractedTokens.joined(separator: "\", "))""#)
             if let sender = sender {
-                tokensBySender.updateValue(newToken, forKey: sender)
+                for newToken: String in extractedTokens {
+                    switch tokensBySender[sender, default: defaultTokenSet].append(newToken) {
+                    case let .addedEvicting(oldToken):
+                        tokenCounts.update(byAdding: newToken,
+                                           andRemoving: oldToken)
+                    case .added:
+                        tokenCounts.update(byAdding: newToken)
+                    case .notAdded: break
+                    }
+                }
+            } else {
+                for newToken: String in extractedTokens {
+                    tokenCounts.update(byAdding: newToken)
+                }
             }
-            
-            tokenCounts.update(byAdding: newToken, andRemoving: oldToken)
             
             await notifyListeners()
         } else {
