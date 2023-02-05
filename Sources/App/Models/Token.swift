@@ -56,17 +56,31 @@ private let languagesByName: [String: String] = [
     "scala": "Scala",
 ]
 
-func tokenFromFirstWord(_ byName: [String: String], text: String) -> String? {
+fileprivate func tokenFromFirstWord(_ byName: [String: String], text: String) -> [String] {
     let normalizedFirstWord: String? = text
         .trimmingCharacters(in: .whitespacesAndNewlines)
         .components(
             separatedBy: .whitespacesAndNewlines.union(CharacterSet(charactersIn: "!,./"))
         )
         .first?.lowercased()
-    return normalizedFirstWord.flatMap { byName[$0] }
+    return Array([normalizedFirstWord.flatMap { byName[$0] }].compacted())
 }
 
-let languageFromFirstWord: (String) -> String? = {
+let languageFromFirstWord: (String) -> [String] = {
     tokenFromFirstWord(languagesByName, text: $0)
+}
+
+fileprivate func tokensFromWords(_ byName: [String: String], text: String) -> [String] {
+    let normalizedWords: [String] = text
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+        .components(
+            separatedBy: .whitespacesAndNewlines.union(CharacterSet(charactersIn: "!,./"))
+        )
+        .map { $0.lowercased() }
+    return normalizedWords.compactMap { byName[$0] }
+}
+
+let languagesFromWords: (String) -> [String] = {
+    tokensFromWords(languagesByName, text: $0)
 }
 

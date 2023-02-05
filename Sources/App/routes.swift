@@ -82,21 +82,24 @@ extension WebSocket: ChatMessageListener {
     }
 }
 
-func routes(_ app: Application) {
-    let chatMessages = ChatMessageBroadcaster(name: "chat")
-    let rejectedMessages = ChatMessageBroadcaster(name: "rejected")
-    let languagePoll = SendersByTokenCounter(
-        name: "language-poll",
-        extractToken: languageFromFirstWord,
-        chatMessages: chatMessages, rejectedMessages: rejectedMessages,
-        expectedSenders: 200
-    )
-    let questions = MessageApprovalRouter(
+func routes(_ app: Application) throws {
+    let chatMessages: ChatMessageBroadcaster = ChatMessageBroadcaster(name: "chat")
+    let rejectedMessages: ChatMessageBroadcaster = ChatMessageBroadcaster(name: "rejected")
+    guard
+        let languagePoll: SendersByTokenCounter = SendersByTokenCounter(
+            name: "language-poll",
+            extractTokens: languagesFromWords,
+            tokensPerSender: 3,
+            chatMessages: chatMessages, rejectedMessages: rejectedMessages,
+            expectedSenders: 200
+        )
+    else { throw InitializationError() }
+    let questions: MessageApprovalRouter = MessageApprovalRouter(
         name: "question",
         chatMessages: chatMessages, rejectedMessages: rejectedMessages,
         expectedCount: 10
     )
-    let transcriptions = TranscriptionBroadcaster()
+    let transcriptions: TranscriptionBroadcaster = TranscriptionBroadcaster()
     
     // Deck
     app.group("event") { route in
