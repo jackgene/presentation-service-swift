@@ -298,7 +298,7 @@ final class FIFOFixedSizedSetTests: XCTestCase {
         var instance: FIFOFixedSizedSet<Int> = try fullIntSet
         
         measure(metrics: [XCTClockMetric()]) {
-            _ = instance.append(0)
+            _ = instance.append(4)
         }
     }
     
@@ -306,7 +306,23 @@ final class FIFOFixedSizedSetTests: XCTestCase {
         var instance: FIFOFixedSizedSet<Int> = try fullIntSet
         
         measure(metrics: [XCTClockMetric()]) {
-            _ = instance.append(contentsOf: [0, 1])
+            _ = instance.append(contentsOf: [4, 5])
+        }
+    }
+    
+    func testPerf_append_existingElementToFullSet() throws {
+        var instance: FIFOFixedSizedSet<Int> = try fullIntSet
+        
+        measure(metrics: [XCTClockMetric()]) {
+            _ = instance.append(1)
+        }
+    }
+    
+    func testPerf_appendContentsOf_existingElementsToFullSet() throws {
+        var instance: FIFOFixedSizedSet<Int> = try fullIntSet
+        
+        measure(metrics: [XCTClockMetric()]) {
+            _ = instance.append(contentsOf: [1, 2])
         }
     }
 }
