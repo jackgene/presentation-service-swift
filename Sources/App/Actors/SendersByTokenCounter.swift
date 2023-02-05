@@ -1,5 +1,10 @@
 import Logging
 
+public struct ChatMessageAndTokens: Encodable {
+    public let chatMessage: ChatMessage
+    public let tokens: [String]
+}
+
 public struct Counts: Encodable {
     public enum PairElement: Encodable {
         case count(number: UInt)
@@ -17,9 +22,23 @@ public struct Counts: Encodable {
         }
     }
     
+    public let chatMessagesAndTokens: [ChatMessageAndTokens]
+    public let tokensBySender: [String: [String]]
     public let tokensAndCounts: [[PairElement]]
     
-    init(tokensByCount: [UInt: [String]]) {
+    init() {
+        self.chatMessagesAndTokens = []
+        self.tokensBySender = [:]
+        self.tokensAndCounts = []
+    }
+    
+    init(
+        chatMessagesAndTokens: [ChatMessageAndTokens],
+        tokensBySender: [String: FIFOFixedSizedSet<String>],
+        tokensByCount: [UInt: [String]]
+    ) {
+        self.chatMessagesAndTokens = chatMessagesAndTokens
+        self.tokensBySender = tokensBySender.mapValues { Array($0) }
         self.tokensAndCounts = tokensByCount
             .map { [.count(number: $0), .tokens(values: $1)] }
         // TODO optimization opportunity to pre-encode JSON
@@ -38,9 +57,19 @@ public actor SendersByTokenCounter {
     private let rejectedMessages: ChatMessageBroadcaster
     private let defaultTokenSet: FIFOFixedSizedSet<String>
     private let expectedSenders: Int
+    private var chatMessagesAndTokens: [ChatMessageAndTokens]
     private var tokensBySender: [String: FIFOFixedSizedSet<String>]
     private var tokenCounts: MultiSet<String>
     private var listeners: Set<HashableInstance<TokensByCountListener>> = []
+    private var currentCounts: Counts {
+        get {
+            Counts(
+                chatMessagesAndTokens: chatMessagesAndTokens,
+                tokensBySender: tokensBySender,
+                tokensByCount: tokenCounts.elementsByCount
+            )
+        }
+    }
     
     public init?(
         name: String,
@@ -62,27 +91,28 @@ public actor SendersByTokenCounter {
         self.defaultTokenSet = emptyTokenSet
         self.expectedSenders = expectedSenders
         
+        chatMessagesAndTokens = []
+        chatMessagesAndTokens.reserveCapacity(expectedSenders)
         tokensBySender = [String: FIFOFixedSizedSet<String>](minimumCapacity: expectedSenders)
         tokenCounts = MultiSet(expectedElements: expectedSenders)
     }
     
     private func notifyListeners() async {
-        let counts = Counts(tokensByCount: tokenCounts.elementsByCount)
+        let counts = currentCounts
         for listener in listeners {
             await listener.instance.countsReceived(counts)
         }
     }
     
     public func reset() async {
-        tokensBySender.removeAll()
+        chatMessagesAndTokens.removeAll(keepingCapacity: true)
+        tokensBySender.removeAll(keepingCapacity: true)
         tokenCounts = MultiSet(expectedElements: expectedSenders)
         await notifyListeners()
     }
     
     public func register(listener: TokensByCountListener) async {
-        await listener.countsReceived(
-            Counts(tokensByCount: tokenCounts.elementsByCount)
-        )
+        await listener.countsReceived(currentCounts)
         
         if listeners.isEmpty {
             await chatMessages.register(listener: self)
@@ -107,6 +137,11 @@ extension SendersByTokenCounter: ChatMessageListener {
         
         if !extractedTokens.isEmpty {
             Self.log.info(#"Extracted tokens "\#(extractedTokens.joined(separator: "\", "))""#)
+            chatMessagesAndTokens.append(
+                ChatMessageAndTokens(
+                    chatMessage: msg, tokens: extractedTokens
+                )
+            )
             if let sender = sender {
                 for newToken: String in extractedTokens {
                     switch tokensBySender[sender, default: defaultTokenSet].append(newToken) {
