@@ -128,7 +128,7 @@ func routes(_ app: Application) throws {
     
     // Moderation
     app.group("moderator") { route in
-        route.get { _ in return moderatorHtml }
+        route.get { _ in return moderatorHTML }
         
         route.webSocket("event") { _, ws in
             await rejectedMessages.register(listener: ws)
@@ -176,7 +176,7 @@ func routes(_ app: Application) throws {
     }
     
     // Transcription
-    app.get("transcriber") { _ in return transcriberHtml }
+    app.get("transcriber") { _ in return transcriberHTML }
     
     app.post("transcription") { req -> Response in
         guard let text: String = req.query["text"] else {
