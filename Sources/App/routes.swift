@@ -20,7 +20,7 @@ extension WebSocket {
 
 actor LanguagePollListener: TokensByCountListener {
     let webSocket: WebSocket
-    var counts: Counts = Counts(tokensByCount: [:])
+    var counts: Counts = Counts()
     var awaitingSend: Bool = false
     
     init(webSocket: WebSocket) {
