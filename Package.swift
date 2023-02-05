@@ -8,18 +8,20 @@ let package = Package(
     ],
     dependencies: [
         // 💧 A server-side Swift web framework.
-        .package(url: "https://github.com/vapor/vapor.git", from: "4.0.0"),
+        .package(url: "https://github.com/vapor/vapor.git", exact: "4.69.2"),
+        .package(url: "https://github.com/apple/swift-collections.git", exact: "1.0.4"),
         // Tests
-        .package(url: "https://github.com/nschum/SwiftHamcrest.git", from: "2.2.2"),
-        .package(url: "https://github.com/typelift/SwiftCheck.git", from: "0.12.0"),
+        .package(url: "https://github.com/nschum/SwiftHamcrest.git", exact: "2.2.2"),
+        .package(url: "https://github.com/typelift/SwiftCheck.git", exact: "0.12.0"),
         // Benchmark
-        .package(url: "https://github.com/apple/swift-collections-benchmark", from: "0.0.3"),
+        .package(url: "https://github.com/apple/swift-collections-benchmark", exact: "0.0.3"),
     ],
     targets: [
         .target(
             name: "App",
             dependencies: [
-                .product(name: "Vapor", package: "vapor")
+                .product(name: "Vapor", package: "vapor"),
+                .product(name: "DequeModule", package: "swift-collections"),
             ],
             swiftSettings: [
                 // Enable better optimizations when building in Release configuration. Despite the use of
