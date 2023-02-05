@@ -7,7 +7,7 @@ final class MultiSetTests: XCTestCase {
     let empty: MultiSet<String> = MultiSet(expectedElements: 2)
     
     // MARK: Specifications
-    func testInit_empty() {
+    func testSpec_init_empty() {
         // Set up & Test
         let instance: MultiSet<String> = empty
         
@@ -16,7 +16,7 @@ final class MultiSetTests: XCTestCase {
         assertThat(instance.elementsByCount, hasCount(0))
     }
     
-    func testUpdated_recordCorrectCounts() {
+    func testSpec_update_recordCorrectCounts() {
         // Set up
         var instance: MultiSet<String> = empty
         
@@ -37,7 +37,7 @@ final class MultiSetTests: XCTestCase {
         assertThat(instance.elementsByCount, equalTo([1: ["test-1"], 5: ["test-2"]]))
     }
     
-    func testUpdated_decrementZero() {
+    func testSpec_update_decrementZero() {
         // Set up
         var instance: MultiSet<String> = empty
         
@@ -48,7 +48,7 @@ final class MultiSetTests: XCTestCase {
         assertThat(instance.countsByElement["test"], nilValue())
     }
     
-    func testUpdated_incrementMax() {
+    func testSpec_update_incrementMax() {
         // Set up
         var instance: MultiSet<String> = empty
         instance.countsByElement["test"] = UInt.max
@@ -61,7 +61,7 @@ final class MultiSetTests: XCTestCase {
         assertThat(instance.countsByElement["test"], equalTo(UInt.max))
     }
     
-    func testUpdated_appendToItemsByCountWhenIncremented() {
+    func testSpec_update_appendToItemsByCountWhenIncremented() {
         // Set up
         var instance: MultiSet<String> = empty
         instance.update(byAdding: "test-1")
@@ -74,7 +74,7 @@ final class MultiSetTests: XCTestCase {
         assertThat(instance.elementsByCount, equalTo([1: ["test-1", "test-2"]]))
     }
     
-    func testUpdated_prependToItemsByCountWhenDecremented() {
+    func testSpec_update_prependToItemsByCountWhenDecremented() {
         // Set up
         var instance: MultiSet<String> = empty
         instance.update(byAdding: "test-2")
@@ -88,7 +88,7 @@ final class MultiSetTests: XCTestCase {
         assertThat(instance.elementsByCount, equalTo([1: ["test-2", "test-1"]]))
     }
     
-    func testUpdated_omitZeroCounts() {
+    func testSpec_update_omitZeroCounts() {
         // Set up
         var instance: MultiSet<String> = empty
         
@@ -101,7 +101,7 @@ final class MultiSetTests: XCTestCase {
     }
     
     // MARK: Properties
-    func testUpdated_countsByItemAndItemsByCountMustReciprocate() {
+    func testProp_update_countsByItemAndItemsByCountMustReciprocate() {
         property("counts by items and items by counts must reciprocate") <- forAll {
             (increments: [String], decrements: [String]) in
             
@@ -124,7 +124,7 @@ final class MultiSetTests: XCTestCase {
     }
     
     // MARK: Performance
-    func testUpdated_newVotePerformance() {
+    func testPerf_update_newVotePerformance() {
         var instance: MultiSet<String> = empty
         
         measure(metrics: [XCTClockMetric()]) {
@@ -132,7 +132,7 @@ final class MultiSetTests: XCTestCase {
         }
     }
     
-    func testUpdated_voteChangePerformance() {
+    func testPerf_update_voteChangePerformance() {
         var instance: MultiSet<String> = empty
         
         measure(metrics: [XCTClockMetric()]) {
