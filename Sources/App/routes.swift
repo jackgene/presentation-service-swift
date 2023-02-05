@@ -93,7 +93,7 @@ func routes(_ app: Application) throws {
             chatMessages: chatMessages, rejectedMessages: rejectedMessages,
             expectedSenders: 200
         )
-    else { throw InitializationError() }
+    else { throw Error.initializationError }
     let questions: MessageApprovalRouter = MessageApprovalRouter(
         name: "question",
         chatMessages: chatMessages, rejectedMessages: rejectedMessages,
