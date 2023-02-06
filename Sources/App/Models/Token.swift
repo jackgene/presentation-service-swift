@@ -56,21 +56,7 @@ private let languagesByName: [String: String] = [
     "scala": "Scala",
 ]
 
-fileprivate func tokenFromFirstWord(_ byName: [String: String], text: String) -> [String] {
-    let normalizedFirstWord: String? = text
-        .trimmingCharacters(in: .whitespacesAndNewlines)
-        .components(
-            separatedBy: .whitespacesAndNewlines.union(CharacterSet(charactersIn: "!,./"))
-        )
-        .first?.lowercased()
-    return Array([normalizedFirstWord.flatMap { byName[$0] }].compacted())
-}
-
-let languageFromFirstWord: (String) -> [String] = {
-    tokenFromFirstWord(languagesByName, text: $0)
-}
-
-fileprivate func tokensFromWords(_ byName: [String: String], text: String) -> [String] {
+private func tokensFromWords(_ byName: [String: String], text: String) -> [String] {
     let normalizedWords: [String] = text
         .trimmingCharacters(in: .whitespacesAndNewlines)
         .components(
@@ -80,7 +66,119 @@ fileprivate func tokensFromWords(_ byName: [String: String], text: String) -> [S
     return normalizedWords.compactMap { byName[$0] }
 }
 
-let languagesFromWords: (String) -> [String] = {
-    tokensFromWords(languagesByName, text: $0)
+func languagesFromWords(text: String) -> [String] {
+    tokensFromWords(languagesByName, text: text)
 }
 
+private let minWordLength: Int = 3
+private let englishStopWords: Set<String> = Set(
+    arrayLiteral: "about",
+    "above",
+    "after",
+    "again",
+    "against",
+    "all",
+    "and",
+    "any",
+    "are",
+    "because",
+    "been",
+    "before",
+    "being",
+    "below",
+    "between",
+    "both",
+    "but",
+    "can",
+    "did",
+    "does",
+    "doing",
+    "down",
+    "during",
+    "each",
+    "few",
+    "for",
+    "from",
+    "further",
+    "had",
+    "has",
+    "have",
+    "having",
+    "her",
+    "here",
+    "hers",
+    "herself",
+    "him",
+    "himself",
+    "his",
+    "how",
+    "into",
+    "its",
+    "itself",
+    "just",
+    "me",
+    "more",
+    "most",
+    "myself",
+    "nor",
+    "not",
+    "now",
+    "off",
+    "once",
+    "only",
+    "other",
+    "our",
+    "ours",
+    "ourselves",
+    "out",
+    "over",
+    "own",
+    "same",
+    "she",
+    "should",
+    "some",
+    "such",
+    "than",
+    "that",
+    "the",
+    "their",
+    "theirs",
+    "them",
+    "themselves",
+    "then",
+    "there",
+    "these",
+    "they",
+    "this",
+    "those",
+    "through",
+    "too",
+    "under",
+    "until",
+    "very",
+    "was",
+    "were",
+    "what",
+    "when",
+    "where",
+    "which",
+    "while",
+    "who",
+    "whom",
+    "why",
+    "will",
+    "with",
+    "you",
+    "your",
+    "yours",
+    "yourself",
+    "yourselves"
+)
+
+func normalizedEnglishWords(text: String) -> [String] {
+    text
+        .trimmingCharacters(in: .whitespacesAndNewlines)
+        .components(separatedBy: .letters.union(CharacterSet(charactersIn: "-")).inverted)
+        .filter { $0.count >= minWordLength && !englishStopWords.contains($0) }
+        .map { $0.lowercased() }
+}
