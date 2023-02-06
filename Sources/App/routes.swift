@@ -18,7 +18,7 @@ extension WebSocket {
     }()
 }
 
-actor LanguagePollListener: TokensByCountListener {
+actor TokensByCountWebSocketAdapter: TokensByCountListener {
     let webSocket: WebSocket
     var counts: Counts = Counts()
     var awaitingSend: Bool = false
@@ -94,6 +94,15 @@ func routes(_ app: Application) throws {
             expectedSenders: 200
         )
     else { throw Error.initializationError }
+    guard
+        let wordCloud: SendersByTokenCounter = SendersByTokenCounter(
+            name: "word-cloud",
+            extractTokens: normalizedEnglishWords,
+            tokensPerSender: 7,
+            chatMessages: chatMessages, rejectedMessages: rejectedMessages,
+            expectedSenders: 200
+        )
+    else { throw Error.initializationError }
     let questions: MessageApprovalRouter = MessageApprovalRouter(
         name: "question",
         chatMessages: chatMessages, rejectedMessages: rejectedMessages,
@@ -104,11 +113,19 @@ func routes(_ app: Application) throws {
     // Deck
     app.group("event") { route in
         route.webSocket("language-poll") { _, ws in
-            let listener = LanguagePollListener(webSocket: ws)
+            let listener = TokensByCountWebSocketAdapter(webSocket: ws)
             await languagePoll.register(listener: listener)
             
             try? await ws.onClose.get()
             await languagePoll.unregister(listener: listener)
+        }
+        
+        route.webSocket("word-cloud") { _, ws in
+            let listener = TokensByCountWebSocketAdapter(webSocket: ws)
+            await wordCloud.register(listener: listener)
+            
+            try? await ws.onClose.get()
+            await wordCloud.unregister(listener: listener)
         }
         
         route.webSocket("question") { _, ws in
@@ -170,6 +187,7 @@ func routes(_ app: Application) throws {
     }
     app.get("reset") { _ -> Response in
         await languagePoll.reset()
+        await wordCloud.reset()
         await questions.reset()
         
         return Response(status: .noContent)
