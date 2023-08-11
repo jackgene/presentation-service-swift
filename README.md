@@ -2,13 +2,13 @@
 
 Build and run:
 ```shell
-swift run -c release Run serve --port=8973 --html-path=(path to deck.html)
+swift run -c release Run present --port=8973 --html-path=(path to deck.html)
 ```
 
 Build then run:
 ```shell
 swift build -c release
-.build/release/PresentationService serve --port 8973 --html-path (path to deck.html)
+.build/release/Run present --port 8973 --html-path (path to deck.html)
 ```
 
 When benchmarking, run the following to increase macOS limits:
