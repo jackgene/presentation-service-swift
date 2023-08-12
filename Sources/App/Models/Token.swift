@@ -60,7 +60,7 @@ private func tokensFromWords(_ byName: [String: String], text: String) -> [Strin
     let normalizedWords: [String] = text
         .trimmingCharacters(in: .whitespacesAndNewlines)
         .components(
-            separatedBy: .whitespacesAndNewlines.union(CharacterSet(charactersIn: "!,./"))
+            separatedBy: .whitespacesAndNewlines.union(CharacterSet(charactersIn: #"!"&,./?|"#))
         )
         .map { $0.lowercased() }
     return normalizedWords.compactMap { byName[$0] }
