@@ -4,17 +4,20 @@ public struct Messages: Encodable {
     public let chatText: [String]
 }
 
-public protocol ApprovedMessagesSubscriber: AnyObject {
+public protocol ModeratedTextSubscriber: AnyObject {
     func messagesReceived(_: Messages) async
 }
 
-public actor MessageApprovalRouter {
-    private static let log = Logger(label: "MessageApprovalRouter")
+/// Actor that collects text from the moderation tool.
+///
+/// Specifically, accepts text for messages where the sender is an empty string.
+public actor ModeratedTextCollector {
+    private static let log = Logger(label: "ModeratedTextCollector")
     private let name: String
     private let chatMessages: ChatMessageBroadcaster
     private let rejectedMessages: ChatMessageBroadcaster
     private var chatText: [String]
-    private var subscribers: Set<HashableInstance<ApprovedMessagesSubscriber>> = []
+    private var subscribers: Set<HashableInstance<ModeratedTextSubscriber>> = []
     
     public init(
         name: String,
@@ -43,7 +46,7 @@ public actor MessageApprovalRouter {
         await notifySubscribers()
     }
     
-    public func add(subscriber: ApprovedMessagesSubscriber) async {
+    public func add(subscriber: ModeratedTextSubscriber) async {
         let msgs = Messages(chatText: chatText.reversed())
         await subscriber.messagesReceived(msgs)
         
@@ -54,7 +57,7 @@ public actor MessageApprovalRouter {
         Self.log.info("+1 \(name) subscriber (=\(subscribers.count))")
     }
     
-    public func remove(subscriber: ApprovedMessagesSubscriber) async {
+    public func remove(subscriber: ModeratedTextSubscriber) async {
         subscribers.remove(HashableInstance(subscriber))
         if subscribers.isEmpty {
             await chatMessages.remove(subscriber: self)
@@ -63,9 +66,9 @@ public actor MessageApprovalRouter {
     }
 }
 
-extension MessageApprovalRouter: ChatMessageSubscriber {
+extension ModeratedTextCollector: ChatMessageSubscriber {
     public func messageReceived(_ msg: ChatMessage) async {
-        if msg.sender != "Me" {
+        if msg.sender != "" {
             await rejectedMessages.newMessage(msg)
             return
         }
