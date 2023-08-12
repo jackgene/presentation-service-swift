@@ -45,10 +45,11 @@ public struct Counts: Encodable {
     }
 }
 
-public protocol TokensByCountSubscriber: AnyObject {
+public protocol CountsSubscriber: AnyObject {
     func countsReceived(_: Counts) async
 }
 
+/// Count senders grouping by (filtered and transformed) message text.
 public actor SendersByTokenCounter {
     private static let log = Logger(label: "SendersByTokenCounter")
     private let name: String
@@ -60,7 +61,7 @@ public actor SendersByTokenCounter {
     private var chatMessagesAndTokens: [ChatMessageAndTokens]
     private var tokensBySender: [String: FIFOBoundedSet<String>]
     private var tokenCounts: MultiSet<String>
-    private var subscribers: Set<HashableInstance<TokensByCountSubscriber>> = []
+    private var subscribers: Set<HashableInstance<CountsSubscriber>> = []
     private var currentCounts: Counts {
         get {
             Counts(
@@ -111,7 +112,7 @@ public actor SendersByTokenCounter {
         await notifySubscribers()
     }
     
-    public func add(subscriber: TokensByCountSubscriber) async {
+    public func add(subscriber: CountsSubscriber) async {
         await subscriber.countsReceived(currentCounts)
         
         if subscribers.isEmpty {
@@ -121,7 +122,7 @@ public actor SendersByTokenCounter {
         Self.log.info("+1 \(name) subscriber (=\(subscribers.count))")
     }
     
-    public func remove(subscriber: TokensByCountSubscriber) async {
+    public func remove(subscriber: CountsSubscriber) async {
         subscribers.remove(HashableInstance(subscriber))
         if subscribers.isEmpty {
             await chatMessages.remove(subscriber: self)
