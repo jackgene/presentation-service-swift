@@ -12,6 +12,7 @@ public protocol TranscriptionSubscriber: AnyObject {
     func transcriptionReceived(_: Transcript) async
 }
 
+/// Accumulates transcription texts, and broadcast them to subscribers.
 public actor TranscriptionBroadcaster {
     private static let log = Logger(label: "TranscriptionBroadcaster")
     private var subscribers: Set<HashableInstance<TranscriptionSubscriber>> = []
