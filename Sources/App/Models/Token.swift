@@ -63,6 +63,7 @@ private func tokensFromWords(_ byName: [String: String], text: String) -> [Strin
             separatedBy: .whitespacesAndNewlines.union(CharacterSet(charactersIn: #"!"&,./?|"#))
         )
         .map { $0.lowercased() }
+        .reversed()
     return normalizedWords.compactMap { byName[$0] }
 }
 
