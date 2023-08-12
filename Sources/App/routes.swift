@@ -18,7 +18,7 @@ extension WebSocket {
     }()
 }
 
-actor TokensByCountWebSocketAdapter: TokensByCountSubscriber {
+actor TokensByCountWebSocketAdapter: CountsSubscriber {
     let webSocket: WebSocket
     var counts: Counts = Counts()
     var awaitingSend: Bool = false
