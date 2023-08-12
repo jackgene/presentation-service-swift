@@ -18,7 +18,7 @@ extension WebSocket {
     }()
 }
 
-actor TokensByCountWebSocketAdapter: TokensByCountListener {
+actor TokensByCountWebSocketAdapter: TokensByCountSubscriber {
     let webSocket: WebSocket
     var counts: Counts = Counts()
     var awaitingSend: Bool = false
@@ -49,7 +49,7 @@ actor TokensByCountWebSocketAdapter: TokensByCountListener {
     }
 }
 
-extension WebSocket: ApprovedMessagesListener {
+extension WebSocket: ApprovedMessagesSubscriber {
     public func messagesReceived(_ msgs: Messages) async {
         if
             let data = try? Self.jsonEncoder.encode(msgs),
@@ -60,7 +60,7 @@ extension WebSocket: ApprovedMessagesListener {
     }
 }
 
-extension WebSocket: TranscriptionListener {
+extension WebSocket: TranscriptionSubscriber {
     public func transcriptionReceived(_ transcript: Transcript) async {
         if
             let data = try? Self.jsonEncoder.encode(transcript),
@@ -71,7 +71,7 @@ extension WebSocket: TranscriptionListener {
     }
 }
 
-extension WebSocket: ChatMessageListener {
+extension WebSocket: ChatMessageSubscriber {
     public func messageReceived(_ msg: ChatMessage) async {
         if
             let data = try? Self.jsonEncoder.encode(msg),
@@ -113,33 +113,33 @@ func routes(_ app: Application) throws {
     // Deck
     app.group("event") { route in
         route.webSocket("language-poll") { _, ws in
-            let listener = TokensByCountWebSocketAdapter(webSocket: ws)
-            await languagePoll.register(listener: listener)
+            let adapter = TokensByCountWebSocketAdapter(webSocket: ws)
+            await languagePoll.add(subscriber: adapter)
             
             try? await ws.onClose.get()
-            await languagePoll.unregister(listener: listener)
+            await languagePoll.remove(subscriber: adapter)
         }
         
         route.webSocket("word-cloud") { _, ws in
-            let listener = TokensByCountWebSocketAdapter(webSocket: ws)
-            await wordCloud.register(listener: listener)
+            let adapter = TokensByCountWebSocketAdapter(webSocket: ws)
+            await wordCloud.add(subscriber: adapter)
             
             try? await ws.onClose.get()
-            await wordCloud.unregister(listener: listener)
+            await wordCloud.remove(subscriber: adapter)
         }
         
         route.webSocket("question") { _, ws in
-            await questions.register(listener: ws)
+            await questions.add(subscriber: ws)
             
             try? await ws.onClose.get()
-            await questions.unregister(listener: ws)
+            await questions.remove(subscriber: ws)
         }
         
         route.webSocket("transcription") { _, ws in
-            await transcriptions.register(listener: ws)
+            await transcriptions.add(subscriber: ws)
             
             try? await ws.onClose.get()
-            await transcriptions.unregister(listener: ws)
+            await transcriptions.remove(subscriber: ws)
         }
     }
     
@@ -148,10 +148,10 @@ func routes(_ app: Application) throws {
         route.get { _ in return moderatorHTML }
         
         route.webSocket("event") { _, ws in
-            await rejectedMessages.register(listener: ws)
+            await rejectedMessages.add(subscriber: ws)
             
             try? await ws.onClose.get()
-            await rejectedMessages.unregister(listener: ws)
+            await rejectedMessages.remove(subscriber: ws)
         }
     }
     app.post("chat") { req -> Response in

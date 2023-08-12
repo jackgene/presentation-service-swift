@@ -8,31 +8,31 @@ public struct Transcript: Encodable {
     }
 }
 
-public protocol TranscriptionListener: AnyObject {
+public protocol TranscriptionSubscriber: AnyObject {
     func transcriptionReceived(_: Transcript) async
 }
 
 public actor TranscriptionBroadcaster {
     private static let log = Logger(label: "TranscriptionBroadcaster")
-    private var listeners: Set<HashableInstance<TranscriptionListener>> = []
+    private var subscribers: Set<HashableInstance<TranscriptionSubscriber>> = []
     
     public init() {}
     
     public func newTranscriptionText(_ text: String) async {
         Self.log.info("Received transcription text - \(text)")
         let transcript = Transcript(text: text)
-        for listener in listeners {
-            await listener.instance.transcriptionReceived(transcript)
+        for subscriber in subscribers {
+            await subscriber.instance.transcriptionReceived(transcript)
         }
     }
     
-    public func register(listener: TranscriptionListener) {
-        listeners.insert(HashableInstance(listener))
-        Self.log.info("+1 transcription listener (=\(listeners.count))")
+    public func add(subscriber: TranscriptionSubscriber) {
+        subscribers.insert(HashableInstance(subscriber))
+        Self.log.info("+1 transcription subscriber (=\(subscribers.count))")
     }
     
-    public func unregister(listener: TranscriptionListener) {
-        listeners.remove(HashableInstance(listener))
-        Self.log.info("-1 transcription listener (=\(listeners.count))")
+    public func remove(subscriber: TranscriptionSubscriber) {
+        subscribers.remove(HashableInstance(subscriber))
+        Self.log.info("-1 transcription subscriber (=\(subscribers.count))")
     }
 }
