@@ -1,7 +1,7 @@
 import DequeModule
 
-/// FIFO Fixed Sized Set
-public struct FIFOFixedSizedSet<Element>: Equatable where Element : Hashable {
+/// FIFO Bounded Set
+public struct FIFOBoundedSet<Element>: Equatable where Element : Hashable {
     public enum Effect: Equatable {
         case added
         case addedEvicting(value: Element)
@@ -55,13 +55,13 @@ public struct FIFOFixedSizedSet<Element>: Equatable where Element : Hashable {
     }
 }
 
-extension FIFOFixedSizedSet: Sequence {
+extension FIFOBoundedSet: Sequence {
     public func makeIterator() -> Deque<Element>.Iterator {
         insertionOrder.makeIterator()
     }
 }
 
-extension FIFOFixedSizedSet: Collection {
+extension FIFOBoundedSet: Collection {
     public typealias Index = Int
     
     public var startIndex: Int { insertionOrder.startIndex }
@@ -76,7 +76,7 @@ extension FIFOFixedSizedSet: Collection {
     }
 }
 
-extension FIFOFixedSizedSet: Encodable where Element : Encodable {
+extension FIFOBoundedSet: Encodable where Element : Encodable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(insertionOrder)
