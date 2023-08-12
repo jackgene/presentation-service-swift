@@ -3,26 +3,26 @@ import SwiftCheck
 import SwiftHamcrest
 import XCTest
 
-final class FIFOFixedSizedSetTests: XCTestCase {
-    var emptyStringSet: FIFOFixedSizedSet<String> {
+final class FIFOBoundedSetTests: XCTestCase {
+    var emptyStringSet: FIFOBoundedSet<String> {
         get throws {
-            guard let instance = FIFOFixedSizedSet<String>(maximumCapacity: 2) else {
-                XCTFail("unable to instantiate FIFOFixedSizedSet")
+            guard let instance = FIFOBoundedSet<String>(maximumCapacity: 2) else {
+                XCTFail("unable to instantiate FIFOBoundedSet")
                 throw XCTSkip()
             }
             return instance
         }
     }
-    var emptyIntSet: FIFOFixedSizedSet<Int> {
+    var emptyIntSet: FIFOBoundedSet<Int> {
         get throws {
-            guard let instance = FIFOFixedSizedSet<Int>(maximumCapacity: 2) else {
-                XCTFail("unable to instantiate FIFOFixedSizedSet")
+            guard let instance = FIFOBoundedSet<Int>(maximumCapacity: 2) else {
+                XCTFail("unable to instantiate FIFOBoundedSet")
                 throw XCTSkip()
             }
             return instance
         }
     }
-    var fullIntSet: FIFOFixedSizedSet<Int> {
+    var fullIntSet: FIFOBoundedSet<Int> {
         get throws {
             var instance = try emptyIntSet
             _ = instance.append(contentsOf: [1, 2, 3])
@@ -34,7 +34,7 @@ final class FIFOFixedSizedSetTests: XCTestCase {
     // MARK: Specifications
     func testSpec_init_empty() {
         // Set up & Test
-        let instance: FIFOFixedSizedSet<String>? = FIFOFixedSizedSet(maximumCapacity: 2)
+        let instance: FIFOBoundedSet<String>? = FIFOBoundedSet(maximumCapacity: 2)
         
         // Verify
         assertThat(instance, not(nilValue()))
@@ -43,7 +43,7 @@ final class FIFOFixedSizedSetTests: XCTestCase {
     
     func testSpec_init_zeroMaximumCapacity() {
         // Set up & Test
-        let instance: FIFOFixedSizedSet<String>? = FIFOFixedSizedSet(maximumCapacity: 0)
+        let instance: FIFOBoundedSet<String>? = FIFOBoundedSet(maximumCapacity: 0)
         
         // Verify
         assertThat(instance, nilValue())
@@ -51,10 +51,10 @@ final class FIFOFixedSizedSetTests: XCTestCase {
     
     func testSpec_append_newElementToEmptyInstance() throws {
         // Set up
-        var instance: FIFOFixedSizedSet<String> = try emptyStringSet
+        var instance: FIFOBoundedSet<String> = try emptyStringSet
         
         // Test
-        let actualEffect: FIFOFixedSizedSet<String>.Effect = instance.append("test")
+        let actualEffect: FIFOBoundedSet<String>.Effect = instance.append("test")
         
         // Verify
         assertThat(actualEffect, equalTo(.added))
@@ -63,11 +63,11 @@ final class FIFOFixedSizedSetTests: XCTestCase {
     
     func testSpec_append_newElementToPartiallyFilledInstance() throws {
         // Set up
-        var instance: FIFOFixedSizedSet<String> = try emptyStringSet
+        var instance: FIFOBoundedSet<String> = try emptyStringSet
         _ = instance.append(contentsOf: ["test-1"])
         
         // Test
-        let actualEffect: FIFOFixedSizedSet<String>.Effect = instance.append("test-2")
+        let actualEffect: FIFOBoundedSet<String>.Effect = instance.append("test-2")
         
         // Verify
         assertThat(actualEffect, equalTo(.added))
@@ -76,11 +76,11 @@ final class FIFOFixedSizedSetTests: XCTestCase {
     
     func testSpec_append_existingElementToPartiallyFilledInstance() throws {
         // Set up
-        var instance: FIFOFixedSizedSet<String> = try emptyStringSet
+        var instance: FIFOBoundedSet<String> = try emptyStringSet
         _ = instance.append(contentsOf: ["test"])
         
         // Test
-        let actualEffect: FIFOFixedSizedSet<String>.Effect = instance.append("test")
+        let actualEffect: FIFOBoundedSet<String>.Effect = instance.append("test")
         
         // Verify
         assertThat(actualEffect, equalTo(.notAdded))
@@ -89,11 +89,11 @@ final class FIFOFixedSizedSetTests: XCTestCase {
     
     func testSpec_append_newElementToFullInstance() throws {
         // Set up
-        var instance: FIFOFixedSizedSet<String> = try emptyStringSet
+        var instance: FIFOBoundedSet<String> = try emptyStringSet
         _ = instance.append(contentsOf: ["test-1", "test-2"])
         
         // Test
-        let actualEffect: FIFOFixedSizedSet<String>.Effect = instance.append("test-3")
+        let actualEffect: FIFOBoundedSet<String>.Effect = instance.append("test-3")
         
         // Verify
         assertThat(actualEffect, equalTo(.addedEvicting(value: "test-1")))
@@ -102,11 +102,11 @@ final class FIFOFixedSizedSetTests: XCTestCase {
     
     func testSpec_append_existingElementToFullInstance() throws {
         // Set up
-        var instance: FIFOFixedSizedSet<String> = try emptyStringSet
+        var instance: FIFOBoundedSet<String> = try emptyStringSet
         _ = instance.append(contentsOf: ["test-1", "test-2"])
         
         // Test
-        let actualEffect: FIFOFixedSizedSet<String>.Effect = instance.append("test-1")
+        let actualEffect: FIFOBoundedSet<String>.Effect = instance.append("test-1")
         
         // Verify
         assertThat(actualEffect, equalTo(.notAdded))
@@ -115,10 +115,10 @@ final class FIFOFixedSizedSetTests: XCTestCase {
     
     func testSpec_appendContentOf_newElementsToEmptyInstance() throws {
         // Set up
-        var instance: FIFOFixedSizedSet<String> = try emptyStringSet
+        var instance: FIFOBoundedSet<String> = try emptyStringSet
         
         // Test
-        let actualEffects: [FIFOFixedSizedSet<String>.Effect] = instance.append(contentsOf: ["test-1", "test-2"])
+        let actualEffects: [FIFOBoundedSet<String>.Effect] = instance.append(contentsOf: ["test-1", "test-2"])
         
         // Verify
         assertThat(actualEffects, equalTo([.added, .added]))
@@ -127,10 +127,10 @@ final class FIFOFixedSizedSetTests: XCTestCase {
     
     func testSpec_appendContentOf_sameElementsToEmptyInstance() throws {
         // Set up
-        var instance: FIFOFixedSizedSet<String> = try emptyStringSet
+        var instance: FIFOBoundedSet<String> = try emptyStringSet
         
         // Test
-        let actualEffects: [FIFOFixedSizedSet<String>.Effect] = instance.append(contentsOf: ["test", "test"])
+        let actualEffects: [FIFOBoundedSet<String>.Effect] = instance.append(contentsOf: ["test", "test"])
         
         // Verify
         assertThat(actualEffects, equalTo([.added, .notAdded]))
@@ -139,11 +139,11 @@ final class FIFOFixedSizedSetTests: XCTestCase {
     
     func testSpec_appendContentOf_newElementsToPartiallyFilledInstance() throws {
         // Set up
-        var instance: FIFOFixedSizedSet<String> = try emptyStringSet
+        var instance: FIFOBoundedSet<String> = try emptyStringSet
         _ = instance.append(contentsOf: ["test-1"])
         
         // Test
-        let actualEffects: [FIFOFixedSizedSet<String>.Effect] = instance.append(contentsOf: ["test-2", "test-3"])
+        let actualEffects: [FIFOBoundedSet<String>.Effect] = instance.append(contentsOf: ["test-2", "test-3"])
         
         // Verify
         assertThat(actualEffects, equalTo([.added, .addedEvicting(value: "test-1")]))
@@ -152,11 +152,11 @@ final class FIFOFixedSizedSetTests: XCTestCase {
     
     func testSpec_appendContentOf_existingAndNewElementsToFullInstance() throws {
         // Set up
-        var instance: FIFOFixedSizedSet<String> = try emptyStringSet
+        var instance: FIFOBoundedSet<String> = try emptyStringSet
         _ = instance.append(contentsOf: ["test-1", "test-2"])
         
         // Test
-        let actualEffects: [FIFOFixedSizedSet<String>.Effect] = instance.append(contentsOf: ["test-1", "test-3"])
+        let actualEffects: [FIFOBoundedSet<String>.Effect] = instance.append(contentsOf: ["test-1", "test-3"])
         
         // Verify
         assertThat(actualEffects, equalTo([.notAdded, .addedEvicting(value: "test-2")]))
@@ -171,9 +171,9 @@ final class FIFOFixedSizedSetTests: XCTestCase {
             // Set up
             let fixedSize: Int = fixedSizeGen.getPositive
             guard
-                var instance: FIFOFixedSizedSet<Int> = FIFOFixedSizedSet(maximumCapacity: fixedSize)
+                var instance: FIFOBoundedSet<Int> = FIFOBoundedSet(maximumCapacity: fixedSize)
             else {
-                XCTFail("unable to instantiate FIFOFixedSizedSet")
+                XCTFail("unable to instantiate FIFOBoundedSet")
                 throw XCTSkip()
             }
             
@@ -192,9 +192,9 @@ final class FIFOFixedSizedSetTests: XCTestCase {
             // Set up
             let fixedSize: Int = fixedSizeGen.getPositive
             guard
-                var instance: FIFOFixedSizedSet<Int> = FIFOFixedSizedSet(maximumCapacity: fixedSize)
+                var instance: FIFOBoundedSet<Int> = FIFOBoundedSet(maximumCapacity: fixedSize)
             else {
-                XCTFail("unable to instantiate FIFOFixedSizedSet")
+                XCTFail("unable to instantiate FIFOBoundedSet")
                 throw XCTSkip()
             }
             
@@ -213,8 +213,8 @@ final class FIFOFixedSizedSetTests: XCTestCase {
             // Set up
             let fixedSize: Int = fixedSizeGen.getPositive
             guard
-                var instance: FIFOFixedSizedSet<Int> = FIFOFixedSizedSet(maximumCapacity: fixedSize)
-            else { throw XCTSkip("unable to instantiate FIFOFixedSizedSet") }
+                var instance: FIFOBoundedSet<Int> = FIFOBoundedSet(maximumCapacity: fixedSize)
+            else { throw XCTSkip("unable to instantiate FIFOBoundedSet") }
             
             // Test
             let actualEvictions: [Int] = instance.append(contentsOf: elements)
@@ -237,8 +237,8 @@ final class FIFOFixedSizedSetTests: XCTestCase {
             
             // Set up
             guard
-                var instance: FIFOFixedSizedSet<Int> = FIFOFixedSizedSet(maximumCapacity: max(elements.count, 1))
-            else { throw XCTSkip("unable to instantiate FIFOFixedSizedSet") }
+                var instance: FIFOBoundedSet<Int> = FIFOBoundedSet(maximumCapacity: max(elements.count, 1))
+            else { throw XCTSkip("unable to instantiate FIFOBoundedSet") }
             
             // Test
             let actualEvictions: [Int] = instance.append(contentsOf: elements)
@@ -261,10 +261,10 @@ final class FIFOFixedSizedSetTests: XCTestCase {
             
             // Set up
             guard
-                let empty: FIFOFixedSizedSet<Int> = FIFOFixedSizedSet(maximumCapacity: max(elements.count, 1))
-            else { throw XCTSkip("unable to instantiate FIFOFixedSizedSet") }
-            var instanceUsingAppend: FIFOFixedSizedSet<Int> = empty
-            var instanceUsingAppendContentsOf: FIFOFixedSizedSet<Int> = empty
+                let empty: FIFOBoundedSet<Int> = FIFOBoundedSet(maximumCapacity: max(elements.count, 1))
+            else { throw XCTSkip("unable to instantiate FIFOBoundedSet") }
+            var instanceUsingAppend: FIFOBoundedSet<Int> = empty
+            var instanceUsingAppendContentsOf: FIFOBoundedSet<Int> = empty
             
             // Test
             for element in elements {
@@ -279,7 +279,7 @@ final class FIFOFixedSizedSetTests: XCTestCase {
     
     // MARK: Performance
     func testPerf_append_newElementToEmptySet() throws {
-        var instance: FIFOFixedSizedSet<Int> = try emptyIntSet
+        var instance: FIFOBoundedSet<Int> = try emptyIntSet
         
         measure(metrics: [XCTClockMetric()]) {
             _ = instance.append(0)
@@ -287,7 +287,7 @@ final class FIFOFixedSizedSetTests: XCTestCase {
     }
     
     func testPerf_appendContentsOf_newElementsToEmptySet() throws {
-        var instance: FIFOFixedSizedSet<Int> = try emptyIntSet
+        var instance: FIFOBoundedSet<Int> = try emptyIntSet
         
         measure(metrics: [XCTClockMetric()]) {
             _ = instance.append(contentsOf: [0, 1])
@@ -295,7 +295,7 @@ final class FIFOFixedSizedSetTests: XCTestCase {
     }
     
     func testPerf_append_newElementToFullSet() throws {
-        var instance: FIFOFixedSizedSet<Int> = try fullIntSet
+        var instance: FIFOBoundedSet<Int> = try fullIntSet
         
         measure(metrics: [XCTClockMetric()]) {
             _ = instance.append(4)
@@ -303,7 +303,7 @@ final class FIFOFixedSizedSetTests: XCTestCase {
     }
     
     func testPerf_appendContentsOf_newElementsToFullSet() throws {
-        var instance: FIFOFixedSizedSet<Int> = try fullIntSet
+        var instance: FIFOBoundedSet<Int> = try fullIntSet
         
         measure(metrics: [XCTClockMetric()]) {
             _ = instance.append(contentsOf: [4, 5])
@@ -311,7 +311,7 @@ final class FIFOFixedSizedSetTests: XCTestCase {
     }
     
     func testPerf_append_existingElementToFullSet() throws {
-        var instance: FIFOFixedSizedSet<Int> = try fullIntSet
+        var instance: FIFOBoundedSet<Int> = try fullIntSet
         
         measure(metrics: [XCTClockMetric()]) {
             _ = instance.append(1)
@@ -319,7 +319,7 @@ final class FIFOFixedSizedSetTests: XCTestCase {
     }
     
     func testPerf_appendContentsOf_existingElementsToFullSet() throws {
-        var instance: FIFOFixedSizedSet<Int> = try fullIntSet
+        var instance: FIFOBoundedSet<Int> = try fullIntSet
         
         measure(metrics: [XCTClockMetric()]) {
             _ = instance.append(contentsOf: [1, 2])

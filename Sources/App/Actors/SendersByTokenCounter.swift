@@ -34,7 +34,7 @@ public struct Counts: Encodable {
     
     init(
         chatMessagesAndTokens: [ChatMessageAndTokens],
-        tokensBySender: [String: FIFOFixedSizedSet<String>],
+        tokensBySender: [String: FIFOBoundedSet<String>],
         tokensByCount: [UInt: [String]]
     ) {
         self.chatMessagesAndTokens = chatMessagesAndTokens
@@ -55,10 +55,10 @@ public actor SendersByTokenCounter {
     private let extractTokens: (String) -> [String]
     private let chatMessages: ChatMessageBroadcaster
     private let rejectedMessages: ChatMessageBroadcaster
-    private let defaultTokenSet: FIFOFixedSizedSet<String>
+    private let defaultTokenSet: FIFOBoundedSet<String>
     private let expectedSenders: Int
     private var chatMessagesAndTokens: [ChatMessageAndTokens]
-    private var tokensBySender: [String: FIFOFixedSizedSet<String>]
+    private var tokensBySender: [String: FIFOBoundedSet<String>]
     private var tokenCounts: MultiSet<String>
     private var listeners: Set<HashableInstance<TokensByCountListener>> = []
     private var currentCounts: Counts {
@@ -80,7 +80,7 @@ public actor SendersByTokenCounter {
         expectedSenders: Int
     ) {
         guard
-            let emptyTokenSet = FIFOFixedSizedSet<String>(
+            let emptyTokenSet = FIFOBoundedSet<String>(
                 maximumCapacity: tokensPerSender
             )
         else { return nil }
@@ -93,7 +93,7 @@ public actor SendersByTokenCounter {
         
         chatMessagesAndTokens = []
         chatMessagesAndTokens.reserveCapacity(expectedSenders)
-        tokensBySender = [String: FIFOFixedSizedSet<String>](minimumCapacity: expectedSenders)
+        tokensBySender = [String: FIFOBoundedSet<String>](minimumCapacity: expectedSenders)
         tokenCounts = MultiSet(expectedElements: expectedSenders)
     }
     

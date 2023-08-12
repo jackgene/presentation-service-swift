@@ -87,7 +87,8 @@
       selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
       selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
       launchStyle = "0"
-      useCustomWorkingDirectory = "NO"
+      useCustomWorkingDirectory = "YES"
+      customWorkingDirectory = "/Users/jleow/Development/Personal/Zoom Presenter/presentation-service-swift"
       ignoresPersistentStateOnLaunch = "NO"
       debugDocumentVersioning = "YES"
       debugServiceExtension = "internal"
@@ -117,7 +118,7 @@
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
-            argument = "--html-path &quot;/Users/jleow/Development/Personal/Zoom Presenter/talks/docs/strongly-typed.html&quot;"
+            argument = "--html-path &quot;/Users/jleow/Development/Personal/Zoom Presenter/talks/docs/strongly-typed-sdkotlin.html&quot;"
             isEnabled = "YES">
          </CommandLineArgument>
          <CommandLineArgument
