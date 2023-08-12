@@ -17,6 +17,14 @@ public protocol ChatMessageSubscriber: AnyObject {
     func messageReceived(_: ChatMessage) async
 }
 
+/// Broadcasts chat messages to any subscriber.
+///
+/// Subscribers can then use the chat messages to drive:
+/// - Polls
+/// - Word Clouds
+/// - Statistics on chat messages
+/// - Q&A questions
+/// - Etc
 public actor ChatMessageBroadcaster {
     private static let log = Logger(label: "ChatMessageBroadcaster")
     private let name: String
