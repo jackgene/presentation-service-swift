@@ -164,14 +164,14 @@ final class FIFOBoundedSetTests: XCTestCase {
     }
     
     // MARK: Properties
-    func testProp_appendContentOf_neverContainMoreElementsThanFixedLimit() {
-        property("never contain more elements than fixed limit") <- forAll {
-            (fixedSizeGen: Positive<Int>, elements: [Int]) in
+    func testProp_appendContentOf_neverContainMoreElementsThanMaxSize() {
+        property("never contain more elements than maxSize") <- forAll {
+            (maxSizeGen: Positive<Int>, elements: [Int]) in
             
             // Set up
-            let fixedSize: Int = fixedSizeGen.getPositive
+            let maxSize: Int = maxSizeGen.getPositive
             guard
-                var instance: FIFOBoundedSet<Int> = FIFOBoundedSet(maximumCapacity: fixedSize)
+                var instance: FIFOBoundedSet<Int> = FIFOBoundedSet(maximumCapacity: maxSize)
             else {
                 XCTFail("unable to instantiate FIFOBoundedSet")
                 throw XCTSkip()
@@ -181,18 +181,18 @@ final class FIFOBoundedSetTests: XCTestCase {
             _ = instance.append(contentsOf: elements)
             
             // Verify
-            return instance.count <= fixedSize
+            return instance.count <= maxSize
         }
     }
     
     func testProp_appendContentOf_alwaysIncludeTheMostRecentlyAddedElements() {
         property("always include the most recently added elements") <- forAll {
-            (fixedSizeGen: Positive<Int>, elements: [Int]) in
+            (maxSizeGen: Positive<Int>, elements: [Int]) in
             
             // Set up
-            let fixedSize: Int = fixedSizeGen.getPositive
+            let maxSize: Int = maxSizeGen.getPositive
             guard
-                var instance: FIFOBoundedSet<Int> = FIFOBoundedSet(maximumCapacity: fixedSize)
+                var instance: FIFOBoundedSet<Int> = FIFOBoundedSet(maximumCapacity: maxSize)
             else {
                 XCTFail("unable to instantiate FIFOBoundedSet")
                 throw XCTSkip()
@@ -202,18 +202,18 @@ final class FIFOBoundedSetTests: XCTestCase {
             _ = instance.append(contentsOf: elements)
             
             // Verify
-            return Set(elements.suffix(fixedSize)).isSubset(of: instance)
+            return Set(elements.suffix(maxSize)).isSubset(of: instance)
         }
     }
     
     func testProp_appendContentOf_onlyEvictTheLeastRecentlyAddedElements() {
         property("only evict the least recently added elements") <- forAll {
-            (fixedSizeGen: Positive<Int>, elements: [Int]) in
+            (maxSizeGen: Positive<Int>, elements: [Int]) in
             
             // Set up
-            let fixedSize: Int = fixedSizeGen.getPositive
+            let maxSize: Int = maxSizeGen.getPositive
             guard
-                var instance: FIFOBoundedSet<Int> = FIFOBoundedSet(maximumCapacity: fixedSize)
+                var instance: FIFOBoundedSet<Int> = FIFOBoundedSet(maximumCapacity: maxSize)
             else { throw XCTSkip("unable to instantiate FIFOBoundedSet") }
             
             // Test
@@ -227,7 +227,7 @@ final class FIFOBoundedSetTests: XCTestCase {
                 }
             
             // Verify
-            return Set(actualEvictions).isSubset(of: elements.dropLast(fixedSize))
+            return Set(actualEvictions).isSubset(of: elements.dropLast(maxSize))
         }
     }
     
@@ -257,7 +257,7 @@ final class FIFOBoundedSetTests: XCTestCase {
     
     func testProp_appendContentOf_appendAndAppendContentsOfAreEquivalentGivenIdenticalInput() {
         property("add and addAll are equivalent given identical input") <- forAll {
-            (fixedSizeGen: Positive<Int>, elements: [Int]) in
+            (maxSizeGen: Positive<Int>, elements: [Int]) in
             
             // Set up
             guard
