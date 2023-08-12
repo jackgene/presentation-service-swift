@@ -13,14 +13,14 @@ public struct ChatMessage: Encodable {
     }
 }
 
-public protocol ChatMessageListener: AnyObject {
+public protocol ChatMessageSubscriber: AnyObject {
     func messageReceived(_: ChatMessage) async
 }
 
 public actor ChatMessageBroadcaster {
     private static let log = Logger(label: "ChatMessageBroadcaster")
     private let name: String
-    private var listeners: Set<HashableInstance<ChatMessageListener>> = []
+    private var subscribers: Set<HashableInstance<ChatMessageSubscriber>> = []
     
     public init(name: String) {
         self.name = name
@@ -28,18 +28,18 @@ public actor ChatMessageBroadcaster {
     
     public func newMessage(_ msg: ChatMessage) async {
         Self.log.info("Received \(self.name) message - \(msg.description)")
-        for listener in listeners {
-            await listener.instance.messageReceived(msg)
+        for subscriber in subscribers {
+            await subscriber.instance.messageReceived(msg)
         }
     }
     
-    public func register(listener: ChatMessageListener) {
-        listeners.insert(HashableInstance(listener))
-        Self.log.info("+1 \(name) message listener (=\(listeners.count))")
+    public func add(subscriber: ChatMessageSubscriber) {
+        subscribers.insert(HashableInstance(subscriber))
+        Self.log.info("+1 \(name) subscriber (=\(subscribers.count))")
     }
     
-    public func unregister(listener: ChatMessageListener) {
-        listeners.remove(HashableInstance(listener))
-        Self.log.info("-1 \(name) message listener (=\(listeners.count))")
+    public func remove(subscriber: ChatMessageSubscriber) {
+        subscribers.remove(HashableInstance(subscriber))
+        Self.log.info("-1 \(name) subscriber (=\(subscribers.count))")
     }
 }

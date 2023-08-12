@@ -4,7 +4,7 @@ public struct Messages: Encodable {
     public let chatText: [String]
 }
 
-public protocol ApprovedMessagesListener: AnyObject {
+public protocol ApprovedMessagesSubscriber: AnyObject {
     func messagesReceived(_: Messages) async
 }
 
@@ -14,7 +14,7 @@ public actor MessageApprovalRouter {
     private let chatMessages: ChatMessageBroadcaster
     private let rejectedMessages: ChatMessageBroadcaster
     private var chatText: [String]
-    private var listeners: Set<HashableInstance<ApprovedMessagesListener>> = []
+    private var subscribers: Set<HashableInstance<ApprovedMessagesSubscriber>> = []
     
     public init(
         name: String,
@@ -31,39 +31,39 @@ public actor MessageApprovalRouter {
         self.chatText = chatText
     }
     
-    private func notifyListeners() async {
+    private func notifySubscribers() async {
         let msgs = Messages(chatText: chatText.reversed())
-        for listener in listeners {
-            await listener.instance.messagesReceived(msgs)
+        for subscriber in subscribers {
+            await subscriber.instance.messagesReceived(msgs)
         }
     }
     
     public func reset() async {
         chatText.removeAll()
-        await notifyListeners()
+        await notifySubscribers()
     }
     
-    public func register(listener: ApprovedMessagesListener) async {
+    public func add(subscriber: ApprovedMessagesSubscriber) async {
         let msgs = Messages(chatText: chatText.reversed())
-        await listener.messagesReceived(msgs)
+        await subscriber.messagesReceived(msgs)
         
-        if listeners.isEmpty {
-            await chatMessages.register(listener: self)
+        if subscribers.isEmpty {
+            await chatMessages.add(subscriber: self)
         }
-        listeners.insert(HashableInstance(listener))
-        Self.log.info("+1 \(name) listener (=\(listeners.count))")
+        subscribers.insert(HashableInstance(subscriber))
+        Self.log.info("+1 \(name) subscriber (=\(subscribers.count))")
     }
     
-    public func unregister(listener: ApprovedMessagesListener) async {
-        listeners.remove(HashableInstance(listener))
-        if listeners.isEmpty {
-            await chatMessages.unregister(listener: self)
+    public func remove(subscriber: ApprovedMessagesSubscriber) async {
+        subscribers.remove(HashableInstance(subscriber))
+        if subscribers.isEmpty {
+            await chatMessages.remove(subscriber: self)
         }
-        Self.log.info("-1 \(name) listener (=\(listeners.count))")
+        Self.log.info("-1 \(name) subscriber (=\(subscribers.count))")
     }
 }
 
-extension MessageApprovalRouter: ChatMessageListener {
+extension MessageApprovalRouter: ChatMessageSubscriber {
     public func messageReceived(_ msg: ChatMessage) async {
         if msg.sender != "Me" {
             await rejectedMessages.newMessage(msg)
@@ -71,6 +71,6 @@ extension MessageApprovalRouter: ChatMessageListener {
         }
         
         chatText.append(msg.text)
-        await notifyListeners()
+        await notifySubscribers()
     }
 }

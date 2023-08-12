@@ -45,7 +45,7 @@ public struct Counts: Encodable {
     }
 }
 
-public protocol TokensByCountListener: AnyObject {
+public protocol TokensByCountSubscriber: AnyObject {
     func countsReceived(_: Counts) async
 }
 
@@ -60,7 +60,7 @@ public actor SendersByTokenCounter {
     private var chatMessagesAndTokens: [ChatMessageAndTokens]
     private var tokensBySender: [String: FIFOBoundedSet<String>]
     private var tokenCounts: MultiSet<String>
-    private var listeners: Set<HashableInstance<TokensByCountListener>> = []
+    private var subscribers: Set<HashableInstance<TokensByCountSubscriber>> = []
     private var currentCounts: Counts {
         get {
             Counts(
@@ -97,10 +97,10 @@ public actor SendersByTokenCounter {
         tokenCounts = MultiSet(expectedElements: expectedSenders)
     }
     
-    private func notifyListeners() async {
+    private func notifySubscribers() async {
         let counts = currentCounts
-        for listener in listeners {
-            await listener.instance.countsReceived(counts)
+        for subscriber in subscribers {
+            await subscriber.instance.countsReceived(counts)
         }
     }
     
@@ -108,29 +108,29 @@ public actor SendersByTokenCounter {
         chatMessagesAndTokens.removeAll(keepingCapacity: true)
         tokensBySender.removeAll(keepingCapacity: true)
         tokenCounts = MultiSet(expectedElements: expectedSenders)
-        await notifyListeners()
+        await notifySubscribers()
     }
     
-    public func register(listener: TokensByCountListener) async {
-        await listener.countsReceived(currentCounts)
+    public func add(subscriber: TokensByCountSubscriber) async {
+        await subscriber.countsReceived(currentCounts)
         
-        if listeners.isEmpty {
-            await chatMessages.register(listener: self)
+        if subscribers.isEmpty {
+            await chatMessages.add(subscriber: self)
         }
-        listeners.insert(HashableInstance(listener))
-        Self.log.info("+1 \(name) listener (=\(listeners.count))")
+        subscribers.insert(HashableInstance(subscriber))
+        Self.log.info("+1 \(name) subscriber (=\(subscribers.count))")
     }
     
-    public func unregister(listener: TokensByCountListener) async {
-        listeners.remove(HashableInstance(listener))
-        if listeners.isEmpty {
-            await chatMessages.unregister(listener: self)
+    public func remove(subscriber: TokensByCountSubscriber) async {
+        subscribers.remove(HashableInstance(subscriber))
+        if subscribers.isEmpty {
+            await chatMessages.remove(subscriber: self)
         }
-        Self.log.info("-1 \(name) listener (=\(listeners.count))")
+        Self.log.info("-1 \(name) subscriber (=\(subscribers.count))")
     }
 }
 
-extension SendersByTokenCounter: ChatMessageListener {
+extension SendersByTokenCounter: ChatMessageSubscriber {
     public func messageReceived(_ msg: ChatMessage) async {
         let sender: String? = msg.sender != "" ? msg.sender : nil
         let extractedTokens: [String] = extractTokens(msg.text)
@@ -159,7 +159,7 @@ extension SendersByTokenCounter: ChatMessageListener {
                 }
             }
             
-            await notifyListeners()
+            await notifySubscribers()
         } else {
             Self.log.info("No token extracted")
             await rejectedMessages.newMessage(msg)

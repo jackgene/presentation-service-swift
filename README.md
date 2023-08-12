@@ -2,7 +2,7 @@
 
 Build and run:
 ```shell
-swift run -c release Run present --port=8973 --html-path=(path to deck.html)
+swift run -c release Run present --port 8973 --html-path (path to deck.html)
 ```
 
 Build then run:
