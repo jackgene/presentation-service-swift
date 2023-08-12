@@ -1,6 +1,7 @@
 import DequeModule
 
-/// FIFO Bounded Set
+/// First-In, First-Out bounded set.
+/// This is basically an LRU-cache that returns evictions as elements are added.
 public struct FIFOBoundedSet<Element>: Equatable where Element : Hashable {
     public enum Effect: Equatable {
         case added
