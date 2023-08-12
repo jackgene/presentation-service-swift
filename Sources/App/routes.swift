@@ -49,7 +49,7 @@ actor TokensByCountWebSocketAdapter: TokensByCountSubscriber {
     }
 }
 
-extension WebSocket: ApprovedMessagesSubscriber {
+extension WebSocket: ModeratedTextSubscriber {
     public func messagesReceived(_ msgs: Messages) async {
         if
             let data = try? Self.jsonEncoder.encode(msgs),
@@ -103,7 +103,7 @@ func routes(_ app: Application) throws {
             expectedSenders: 200
         )
     else { throw Error.initializationError }
-    let questions: MessageApprovalRouter = MessageApprovalRouter(
+    let questions: ModeratedTextCollector = ModeratedTextCollector(
         name: "question",
         chatMessages: chatMessages, rejectedMessages: rejectedMessages,
         expectedCount: 10
