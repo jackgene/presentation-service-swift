@@ -31,7 +31,10 @@ let package = Package(
                 .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release))
             ]
         ),
-        .executableTarget(name: "Run", dependencies: [.target(name: "App")]),
+        .executableTarget(
+            name: "presentation-service",
+            dependencies: [.target(name: "App")],
+            path: "Sources/Run"),
         .executableTarget(
             name: "Benchmark",
             dependencies: [
