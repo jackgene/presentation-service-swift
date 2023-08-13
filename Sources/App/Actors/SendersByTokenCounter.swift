@@ -138,13 +138,14 @@ extension SendersByTokenCounter: ChatMessageSubscriber {
         
         if !extractedTokens.isEmpty {
             Self.log.info(#"Extracted tokens "\#(extractedTokens.joined(separator: "\", "))""#)
+            let prioritizedTokens: [String] = extractedTokens.reversed()
             chatMessagesAndTokens.append(
                 ChatMessageAndTokens(
-                    chatMessage: msg, tokens: extractedTokens
+                    chatMessage: msg, tokens: prioritizedTokens
                 )
             )
             if let sender = sender {
-                for newToken: String in extractedTokens {
+                for newToken: String in prioritizedTokens {
                     switch tokensBySender[sender, default: defaultTokenSet].append(newToken) {
                     case let .addedEvicting(oldToken):
                         tokenCounts.update(byAdding: newToken,
@@ -155,7 +156,7 @@ extension SendersByTokenCounter: ChatMessageSubscriber {
                     }
                 }
             } else {
-                for newToken: String in extractedTokens {
+                for newToken: String in prioritizedTokens {
                     tokenCounts.update(byAdding: newToken)
                 }
             }
