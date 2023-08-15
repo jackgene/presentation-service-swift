@@ -26,6 +26,9 @@ public final class PresentationServiceCommand: Command {
         public init() { }
     }
     
+    public static let defaultHostname = "127.0.0.1"
+    public static let defaultPort = 8973
+    
     /// Errors that may be thrown when serving a server
     public enum Error: Swift.Error {
         /// Missing required option
@@ -67,7 +70,7 @@ public final class PresentationServiceCommand: Command {
         
         switch (signature.hostname, signature.port, signature.bind, signature.socketPath) {
         case (.none, .none, .none, .none): // use defaults
-            try context.application.server.start(address: nil)
+            try context.application.server.start(address: .hostname(Self.defaultHostname, port: Self.defaultPort))
             
         case (.none, .none, .none, .some(let socketPath)): // unix socket
             try context.application.server.start(address: .unixDomainSocket(path: socketPath))
