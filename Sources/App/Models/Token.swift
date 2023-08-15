@@ -1,7 +1,6 @@
 import Foundation
 
 private let languagesByName: [String: String] = [
-    // GoodRx Languages
     // Go
     "go": "Go",
     "golang": "Go",
