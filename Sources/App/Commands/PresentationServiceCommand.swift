@@ -3,7 +3,7 @@ import Vapor
 /// Boots the application's server. Listens for `SIGINT` and `SIGTERM` for graceful shutdown.
 ///
 ///     $ swift run Run present
-///     Server starting on http://localhost:8080
+///     Server starting on http://localhost:8973
 ///
 /// This is just a copy of the build-in ServeCommand, but with support for additional options
 public final class PresentationServiceCommand: Command {
