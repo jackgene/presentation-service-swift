@@ -53,7 +53,7 @@ public protocol CountsSubscriber: AnyObject {
 public actor SendersByTokenCounter {
     private static let log = Logger(label: "SendersByTokenCounter")
     private let name: String
-    private let extractTokens: (String) -> [String]
+    private let extractTokens: Tokenizer
     private let chatMessages: ChatMessageBroadcaster
     private let rejectedMessages: ChatMessageBroadcaster
     private let defaultTokenSet: FIFOBoundedSet<String>
@@ -74,7 +74,7 @@ public actor SendersByTokenCounter {
     
     public init?(
         name: String,
-        extractTokens: @escaping (String) -> [String],
+        extractTokens: @escaping Tokenizer,
         tokensPerSender: Int,
         chatMessages: ChatMessageBroadcaster,
         rejectedMessages: ChatMessageBroadcaster,

@@ -82,14 +82,14 @@ extension WebSocket: ChatMessageSubscriber {
     }
 }
 
-func routes(_ app: Application) throws {
+func routes(_ app: Application, _ config: Configuration) throws {
     let chatMessages: ChatMessageBroadcaster = ChatMessageBroadcaster(name: "chat")
     let rejectedMessages: ChatMessageBroadcaster = ChatMessageBroadcaster(name: "rejected")
     guard
         let languagePoll: SendersByTokenCounter = SendersByTokenCounter(
             name: "language-poll",
-            extractTokens: languagesFromWords,
-            tokensPerSender: 3,
+            extractTokens: mappedKeywordsTokenizer(config.languagePoll.languageByKeyword),
+            tokensPerSender: config.languagePoll.maxVotesPerPerson,
             chatMessages: chatMessages, rejectedMessages: rejectedMessages,
             expectedSenders: 200
         )
@@ -97,8 +97,11 @@ func routes(_ app: Application) throws {
     guard
         let wordCloud: SendersByTokenCounter = SendersByTokenCounter(
             name: "word-cloud",
-            extractTokens: normalizedEnglishWords,
-            tokensPerSender: 7,
+            extractTokens: normalizedWordsTokenizer(
+                stopWords: config.wordCloud.stopWords,
+                minWordLength: config.wordCloud.minWordLength
+            ),
+            tokensPerSender: config.wordCloud.maxWordsPerPerson,
             chatMessages: chatMessages, rejectedMessages: rejectedMessages,
             expectedSenders: 200
         )
