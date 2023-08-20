@@ -50,7 +50,7 @@ actor TokensByCountWebSocketAdapter: CountsSubscriber {
 }
 
 extension WebSocket: ModeratedTextSubscriber {
-    public func messagesReceived(_ msgs: Messages) async {
+    public func messagesReceived(_ msgs: ModeratedText) async {
         if
             let data = try? Self.jsonEncoder.encode(msgs),
             let json = String(data: data, encoding: .utf8)
@@ -165,22 +165,18 @@ func routes(_ app: Application, _ config: Configuration) throws {
             throw Abort(.badRequest, reason: #"missing "text" parameter"#)
         }
         
-        let sender: String?
-        let recipient: String?
+        let senderAndRecipient: (String, String)?
         if route.hasSuffix(" to Me (Direct Message)") {
-            sender = String(route.dropLast(23))
-            recipient = "Me"
+            senderAndRecipient = (String(route.dropLast(23)), "Me")
         } else if route.hasSuffix(" to Everyone") {
-            sender = String(route.dropLast(12))
-            recipient = "Everyone"
-        } else if route.hasPrefix("Me ") {
-            sender = nil
-            recipient = nil
+            senderAndRecipient = (String(route.dropLast(12)), "Everyone")
+        } else if route.hasPrefix("Me to ") {
+            senderAndRecipient = nil
         } else {
             throw Abort(.badRequest, reason: #"malformed "route": \#(route)"#)
         }
         
-        if let sender = sender, let recipient = recipient {
+        if let (sender, recipient) = senderAndRecipient {
             await chatMessages.newMessage(
                 ChatMessage(sender: sender, recipient: recipient, text: text)
             )

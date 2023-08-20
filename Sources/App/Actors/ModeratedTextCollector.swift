@@ -1,11 +1,11 @@
 import Logging
 
-public struct Messages: Encodable {
+public struct ModeratedText: Encodable {
     public let chatText: [String]
 }
 
 public protocol ModeratedTextSubscriber: AnyObject {
-    func messagesReceived(_: Messages) async
+    func messagesReceived(_: ModeratedText) async
 }
 
 /// Actor that collects text from the moderation tool.
@@ -35,7 +35,7 @@ public actor ModeratedTextCollector {
     }
     
     private func notifySubscribers() async {
-        let msgs = Messages(chatText: chatText.reversed())
+        let msgs = ModeratedText(chatText: chatText.reversed())
         for subscriber in subscribers {
             await subscriber.instance.messagesReceived(msgs)
         }
@@ -47,7 +47,7 @@ public actor ModeratedTextCollector {
     }
     
     public func add(subscriber: ModeratedTextSubscriber) async {
-        let msgs = Messages(chatText: chatText.reversed())
+        let msgs = ModeratedText(chatText: chatText.reversed())
         await subscriber.messagesReceived(msgs)
         
         if subscribers.isEmpty {
