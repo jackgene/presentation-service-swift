@@ -23,7 +23,7 @@ let package = Package(
                 .product(name: "Vapor", package: "vapor"),
                 .product(name: "DequeModule", package: "swift-collections"),
             ],
-            exclude: ["Models/presentation-service.plist"],
+            exclude: ["Models/Configuration.plist"],
             swiftSettings: [
                 // Enable better optimizations when building in Release configuration. Despite the use of
                 // the `.unsafeFlags` construct required by SwiftPM, this flag is recommended for Release
