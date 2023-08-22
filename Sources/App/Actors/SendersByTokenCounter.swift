@@ -137,7 +137,7 @@ extension SendersByTokenCounter: ChatMessageSubscriber {
         let extractedTokens: [String] = extractTokens(msg.text)
         
         if !extractedTokens.isEmpty {
-            Self.log.info(#"Extracted tokens "\#(extractedTokens.joined(separator: "\", "))""#)
+            Self.log.info(#"Extracted tokens "\#(extractedTokens.joined(separator: #"", ""#))""#)
             let prioritizedTokens: [String] = extractedTokens.reversed()
             chatMessagesAndTokens.append(
                 ChatMessageAndTokens(
