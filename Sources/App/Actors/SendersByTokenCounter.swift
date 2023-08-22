@@ -6,7 +6,7 @@ public struct ChatMessageAndTokens: Encodable {
 }
 
 public struct Counts: Encodable {
-    public enum PairElement: Encodable {
+    public enum CountOrTokens: Encodable {
         case count(number: UInt)
         case tokens(values: [String])
         
@@ -14,8 +14,8 @@ public struct Counts: Encodable {
             var container = encoder.singleValueContainer()
             
             switch self {
-            case .count(let number):
-                try container.encode(number)
+            case .count(let value):
+                try container.encode(value)
             case .tokens(let values):
                 try container.encode(values)
             }
@@ -24,7 +24,7 @@ public struct Counts: Encodable {
     
     public let chatMessagesAndTokens: [ChatMessageAndTokens]
     public let tokensBySender: [String: [String]]
-    public let tokensAndCounts: [[PairElement]]
+    public let tokensAndCounts: [[CountOrTokens]]
     
     init() {
         self.chatMessagesAndTokens = []
