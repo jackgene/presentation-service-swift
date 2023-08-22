@@ -14,12 +14,12 @@ func mappedKeywordsTokenizer(_ keywordByToken: [String: String]) -> Tokenizer {
     }
 }
 
-func normalizedWordsTokenizer(stopWords: Set<String>, minWordLength: Int) -> Tokenizer {
+func normalizedWordsTokenizer(stopWords: Set<String>, minWordLength: Int, maxWordLength: Int) -> Tokenizer {
     { (text: String) in
         text
             .trimmingCharacters(in: .whitespacesAndNewlines)
             .components(separatedBy: .letters.union(CharacterSet(charactersIn: "-")).inverted)
-            .filter { $0.count >= minWordLength && !stopWords.contains($0) }
+            .filter { minWordLength...maxWordLength ~= $0.count && !stopWords.contains($0) }
             .map { $0.lowercased() }
     }
 }

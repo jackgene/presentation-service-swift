@@ -99,7 +99,8 @@ func routes(_ app: Application, _ config: Configuration) throws {
             name: "word-cloud",
             extractTokens: normalizedWordsTokenizer(
                 stopWords: config.wordCloud.stopWords,
-                minWordLength: config.wordCloud.minWordLength
+                minWordLength: config.wordCloud.minWordLength,
+                maxWordLength: config.wordCloud.maxWordLength
             ),
             tokensPerSender: config.wordCloud.maxWordsPerPerson,
             chatMessages: chatMessages, rejectedMessages: rejectedMessages,

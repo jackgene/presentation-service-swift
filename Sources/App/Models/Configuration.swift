@@ -14,11 +14,13 @@ struct Configuration: Codable {
     struct WordCloud: Codable {
         let maxWordsPerPerson: Int
         let minWordLength: Int
+        let maxWordLength: Int
         let stopWords: Set<String>
         
         enum CodingKeys: String, CodingKey {
             case maxWordsPerPerson = "MaxWordsPerPerson"
             case minWordLength = "MinWordLength"
+            case maxWordLength = "MaxWordLength"
             case stopWords = "StopWords"
         }
     }
@@ -142,6 +144,8 @@ struct Configuration: Codable {
                 <integer>7</integer>
                 <key>MinWordLength</key>
                 <integer>3</integer>
+                <key>MaxWordLength</key>
+                <integer>24</integer>
                 <key>StopWords</key>
                 <array>
                     <string>about</string>
