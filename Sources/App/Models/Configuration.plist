@@ -116,6 +116,8 @@
 		<integer>7</integer>
 		<key>MinWordLength</key>
 		<integer>3</integer>
+		<key>MaxWordLength</key>
+		<integer>24</integer>
 		<key>StopWords</key>
 		<array>
 			<string>about</string>
