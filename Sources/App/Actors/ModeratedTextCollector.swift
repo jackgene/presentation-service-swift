@@ -35,7 +35,7 @@ public actor ModeratedTextCollector {
     }
     
     private func notifySubscribers() async {
-        let msgs = ModeratedText(chatText: chatText.reversed())
+        let msgs = ModeratedText(chatText: chatText)
         for subscriber in subscribers {
             await subscriber.instance.messagesReceived(msgs)
         }
