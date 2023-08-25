@@ -26,7 +26,7 @@ public final class PresentationServiceCommand: Command {
         public init() { }
     }
     
-    public static let defaultHostname = "127.0.0.1"
+    public static let defaultHostname = "0.0.0.0"
     public static let defaultPort = 8973
     
     /// Errors that may be thrown when serving a server
