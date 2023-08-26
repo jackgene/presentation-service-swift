@@ -4,7 +4,7 @@ import SwiftHamcrest
 import XCTest
 
 final class MultiSetTests: XCTestCase {
-    let empty: MultiSet<String> = MultiSet(expectedElements: 2)
+    let empty: MultiSet<String> = MultiSet(minimumCapacity: 2)
     
     // MARK: Specifications
     func testSpec_init_empty() {
