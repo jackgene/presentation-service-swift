@@ -1,4 +1,4 @@
-// swift-tools-version:5.8
+// swift-tools-version:5.7
 import PackageDescription
 
 let package = Package(
@@ -31,7 +31,7 @@ let package = Package(
                 // See <https://github.com/swift-server/guides/blob/main/docs/building.md#building-for-production> for details.
                 .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release)),
                 // Enable regex literal
-                .enableUpcomingFeature("BareSlashRegexLiterals"),
+                .unsafeFlags(["-enable-bare-slash-regex"]),
             ]
         ),
         .executableTarget(
