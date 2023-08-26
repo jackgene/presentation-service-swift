@@ -81,9 +81,7 @@ public actor SendersByTokenCounter {
         expectedSenders: Int
     ) {
         guard
-            let emptyTokenSet = FIFOBoundedSet<String>(
-                maximumCapacity: tokensPerSender
-            )
+            let emptyTokenSet = FIFOBoundedSet<String>(maximumCount: tokensPerSender)
         else { return nil }
         self.name = name
         self.extractTokens = extractTokens

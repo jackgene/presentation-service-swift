@@ -9,16 +9,16 @@ public struct FIFOBoundedSet<Element>: Equatable where Element : Hashable {
         case notAdded
     }
     
-    public let maximumCapacity: Int
+    public let maximumCount: Int
     var uniques: Set<Element>
     var insertionOrder: Deque<Element>
     
-    public init?(maximumCapacity: Int) {
-        guard maximumCapacity > 0 else { return nil }
+    public init?(maximumCount: Int) {
+        guard maximumCount > 0 else { return nil }
         
-        self.maximumCapacity = maximumCapacity
-        self.uniques = Set(minimumCapacity: maximumCapacity)
-        self.insertionOrder = Deque(minimumCapacity: maximumCapacity)
+        self.maximumCount = maximumCount
+        self.uniques = Set(minimumCapacity: maximumCount)
+        self.insertionOrder = Deque(minimumCapacity: maximumCount)
     }
     
     public mutating func append(_ element: Element) -> Effect {
@@ -34,7 +34,7 @@ public struct FIFOBoundedSet<Element>: Equatable where Element : Hashable {
             uniques.insert(element)
             insertionOrder.append(element)
             
-            if uniques.count <= maximumCapacity {
+            if uniques.count <= maximumCount {
                 return .added
             } else {
                 guard
