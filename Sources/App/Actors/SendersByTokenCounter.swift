@@ -93,7 +93,7 @@ public actor SendersByTokenCounter {
         chatMessagesAndTokens = []
         chatMessagesAndTokens.reserveCapacity(expectedSenders)
         tokensBySender = [String: FIFOBoundedSet<String>](minimumCapacity: expectedSenders)
-        tokenCounts = MultiSet(expectedElements: expectedSenders)
+        tokenCounts = MultiSet(minimumCapacity: expectedSenders)
     }
     
     private func notifySubscribers() async {
@@ -106,7 +106,7 @@ public actor SendersByTokenCounter {
     public func reset() async {
         chatMessagesAndTokens.removeAll(keepingCapacity: true)
         tokensBySender.removeAll(keepingCapacity: true)
-        tokenCounts = MultiSet(expectedElements: expectedSenders)
+        tokenCounts = MultiSet(minimumCapacity: expectedSenders)
         await notifySubscribers()
     }
     

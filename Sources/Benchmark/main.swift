@@ -7,7 +7,7 @@ benchmark.add(
     title: "New Vote",
     input: Int.self
 ) { size in
-    var instance: MultiSet<Int> = MultiSet(expectedElements: size)
+    var instance: MultiSet<Int> = MultiSet(minimumCapacity: size)
     
     return { _ in
         for element in 0..<size {
@@ -20,7 +20,7 @@ benchmark.add(
     title: "Vote Change",
     input: Int.self
 ) { size in
-    var instance: MultiSet<Int> = MultiSet(expectedElements: size)
+    var instance: MultiSet<Int> = MultiSet(minimumCapacity: size)
     for element in 0..<size {
         instance.update(byAdding: element)
     }

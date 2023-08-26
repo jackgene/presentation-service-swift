@@ -3,9 +3,9 @@ public struct MultiSet<Element> where Element : Hashable {
     var countsByElement: [Element: UInt]
     public internal(set) var elementsByCount: [UInt: [Element]]
     
-    public init(expectedElements: Int) {
-        self.countsByElement = Dictionary(minimumCapacity: expectedElements)
-        self.elementsByCount = Dictionary(minimumCapacity: expectedElements)
+    public init(minimumCapacity: Int) {
+        self.countsByElement = Dictionary(minimumCapacity: minimumCapacity)
+        self.elementsByCount = Dictionary(minimumCapacity: minimumCapacity)
     }
     
     private mutating func add(element: Element) {
