@@ -139,17 +139,12 @@ final class FIFOBoundedSetTests: XCTestCase {
     
     // MARK: Properties
     func testProp_appendContentOf_neverContainMoreElementsThanMaximumCount() {
-        property("never contain more elements than maximumCount") <- forAll {
-            (maximumCountPos: Positive<Int>, elements: [Int]) in
+        property("never contain more elements than maximumCount") <- forAll(
+            Gen<Int>.positiveNumber, [Int].arbitrary
+        ) { (maximumCount: Int, elements: [Int]) in
             
             // Set up
-            let maximumCount: Int = maximumCountPos.getPositive
-            guard
-                var instance: FIFOBoundedSet<Int> = try? FIFOBoundedSet(maximumCount: maximumCount)
-            else {
-                XCTFail("unable to instantiate FIFOBoundedSet")
-                throw XCTSkip()
-            }
+            var instance: FIFOBoundedSet<Int> = try FIFOBoundedSet(maximumCount: maximumCount)
             
             // Test
             _ = instance.append(contentsOf: elements)
@@ -160,17 +155,12 @@ final class FIFOBoundedSetTests: XCTestCase {
     }
     
     func testProp_appendContentOf_alwaysIncludeTheMostRecentlyAddedElements() {
-        property("always include the most recently added elements") <- forAll {
-            (maximumCountGen: Positive<Int>, elements: [Int]) in
+        property("always include the most recently added elements") <- forAll(
+            Gen<Int>.positiveNumber, [Int].arbitrary
+        ) { (maximumCount: Int, elements: [Int]) in
             
             // Set up
-            let maximumCount: Int = maximumCountGen.getPositive
-            guard
-                var instance: FIFOBoundedSet<Int> = try? FIFOBoundedSet(maximumCount: maximumCount)
-            else {
-                XCTFail("unable to instantiate FIFOBoundedSet")
-                throw XCTSkip()
-            }
+            var instance: FIFOBoundedSet<Int> = try FIFOBoundedSet(maximumCount: maximumCount)
             
             // Test
             _ = instance.append(contentsOf: elements)
@@ -181,14 +171,12 @@ final class FIFOBoundedSetTests: XCTestCase {
     }
     
     func testProp_appendContentOf_onlyEvictTheLeastRecentlyAddedElements() {
-        property("only evict the least recently added elements") <- forAll {
-            (maximumCountGen: Positive<Int>, elements: [Int]) in
+        property("only evict the least recently added elements") <- forAll(
+            Gen<Int>.positiveNumber, [Int].arbitrary
+        ) { (maximumCount: Int, elements: [Int]) in
             
             // Set up
-            let maximumCount: Int = maximumCountGen.getPositive
-            guard
-                var instance: FIFOBoundedSet<Int> = try? FIFOBoundedSet(maximumCount: maximumCount)
-            else { throw XCTSkip("unable to instantiate FIFOBoundedSet") }
+            var instance: FIFOBoundedSet<Int> = try FIFOBoundedSet(maximumCount: maximumCount)
             
             // Test
             let actualEvictions: [Int] = instance.append(contentsOf: elements)
@@ -206,13 +194,12 @@ final class FIFOBoundedSetTests: XCTestCase {
     }
     
     func testProp_appendContentOf_neverEvictWhenNotFull() {
-        property("never evict when not full") <- forAll {
-            (elements: [Int]) in
+        property("never evict when not full") <- forAll(
+            [Int].arbitrary.suchThat { !$0.isEmpty }
+        ) { (elements: [Int]) in
             
             // Set up
-            guard
-                var instance: FIFOBoundedSet<Int> = try? FIFOBoundedSet(maximumCount: max(elements.count, 1))
-            else { throw XCTSkip("unable to instantiate FIFOBoundedSet") }
+            var instance: FIFOBoundedSet<Int> = try FIFOBoundedSet(maximumCount: elements.count)
             
             // Test
             let actualEvictions: [Int] = instance.append(contentsOf: elements)
@@ -230,13 +217,12 @@ final class FIFOBoundedSetTests: XCTestCase {
     }
     
     func testProp_appendContentOf_appendAndAppendContentsOfAreEquivalentGivenIdenticalInput() {
-        property("append and appendContentOf are equivalent given identical input") <- forAll {
-            (maximumCountGen: Positive<Int>, elements: [Int]) in
+        property("append and appendContentOf are equivalent given identical input") <- forAll(
+            Gen<Int>.positiveNumber, [Int].arbitrary
+        ) { (maximumCount: Int, elements: [Int]) in
             
             // Set up
-            guard
-                let empty: FIFOBoundedSet<Int> = try? FIFOBoundedSet(maximumCount: max(elements.count, 1))
-            else { throw XCTSkip("unable to instantiate FIFOBoundedSet") }
+            let empty: FIFOBoundedSet<Int> = try FIFOBoundedSet(maximumCount: maximumCount)
             var instanceUsingAppend: FIFOBoundedSet<Int> = empty
             var instanceUsingAppendContentsOf: FIFOBoundedSet<Int> = empty
             
