@@ -1,9 +1,12 @@
 .DEFAULT_GOAL := build
-.PHONY: clean build
+.PHONY: clean test build
 
 clean:
 	@rm -rf .build/*-apple-macosx
 
-build: clean
+test:
+	@swift test
+
+build:
 	@swift build -c release
 
