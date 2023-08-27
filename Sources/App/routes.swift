@@ -115,11 +115,11 @@ func routes(_ app: Application, _ config: Configuration) throws {
     let wordCloud: SendersByTokenCounter = try {
         let tokenizer: Tokenizer
         do {
-            tokenizer = try NormalizedWordsTokenizer(
+            tokenizer = try normalizedWordsTokenizer(
                 stopWords: config.wordCloud.stopWords,
                 minWordLength: config.wordCloud.minWordLength,
                 maxWordLength: config.wordCloud.maxWordLength
-            ).tokenize
+            )
         } catch Error.illegalArgument(let reason) {
             throw Error.initializationError(
                 reason: "error initializing word-cloud actor's extractToken: \(reason)"
