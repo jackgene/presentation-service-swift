@@ -90,9 +90,9 @@ func routes(_ app: Application, _ config: Configuration) throws {
     let languagePoll: SendersByTokenCounter = try {
         let tokenizer: Tokenizer
         do {
-            tokenizer = try mappedKeywordsTokenizer(
-                config.languagePoll.languageByKeyword
-            )
+            tokenizer = try MappedKeywordsTokenizer(
+                keywordsByRawToken: config.languagePoll.languageByKeyword
+            ).tokenize
         } catch Error.illegalArgument(let reason) {
             throw Error.initializationError(
                 reason: "error initializing language-poll actor's extractTokens: \(reason)"
@@ -115,11 +115,11 @@ func routes(_ app: Application, _ config: Configuration) throws {
     let wordCloud: SendersByTokenCounter = try {
         let tokenizer: Tokenizer
         do {
-            tokenizer = try normalizedWordsTokenizer(
+            tokenizer = try NormalizedWordsTokenizer(
                 stopWords: config.wordCloud.stopWords,
                 minWordLength: config.wordCloud.minWordLength,
                 maxWordLength: config.wordCloud.maxWordLength
-            )
+            ).tokenize
         } catch Error.illegalArgument(let reason) {
             throw Error.initializationError(
                 reason: "error initializing word-cloud actor's extractToken: \(reason)"
