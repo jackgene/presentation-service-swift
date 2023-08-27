@@ -101,9 +101,28 @@ final class MultiSetTests: XCTestCase {
     }
     
     // MARK: Properties
-    func testProp_update_countsByItemAndItemsByCountMustReciprocate() {
-        property("counts by items and items by counts must reciprocate") <- forAll {
-            (increments: [String], decrements: [String]) in
+    static let duplicativeElements: Gen<[String]> = Gen<String>.alphabeticalLowercase
+        .flatMap { (element: String) in
+            Gen<Int>.positive.flatMap { (count: Int) in
+                Gen.pure((element, count))
+            }
+        }
+        .proliferate
+        .suchThat { !$0.isEmpty }
+        .map { (elementsAndCounts: [(String, Int)]) in
+            elementsAndCounts
+                .flatMap {
+                    let (element, count): (String, Int) = $0
+                    
+                    return Array(repeating: element, count: count)
+                }
+                .shuffled()
+        }
+    
+    func testProp_update_countsByElementAndElementsByCountMustReciprocate() {
+        property("counts by element and elements by counts must reciprocate") <- forAll(
+            Self.duplicativeElements, Self.duplicativeElements
+        ) { (increments: [String], decrements: [String]) in
             
             // Test
             var instance: MultiSet<String> = self.empty
@@ -116,10 +135,112 @@ final class MultiSetTests: XCTestCase {
             
             // Verify
             return (
-                (instance.countsByElement.count == instance.elementsByCount.values.flatMap { $0 }.count)
+                instance.countsByElement.allSatisfy {
+                    let element: String = $0.key
+                    let count: UInt = $0.value
+                    
+                    return instance.elementsByCount[count]?.contains(element) ?? false
+                }
+                
                 ^&&^
-                (instance.countsByElement.values.allSatisfy { instance.elementsByCount[$0] != nil })
+                
+                instance.elementsByCount.allSatisfy {
+                    let count: UInt = $0.key
+                    let elements: [String] = $0.value
+                    
+                    return elements.allSatisfy { (element: String) in
+                        instance.countsByElement[element] == count
+                    }
+                }
             )
+        }
+    }
+    
+    func testProp_update_neverRecordZeroCounts() {
+        property("never record zero counts") <- forAll(
+            Self.duplicativeElements, Self.duplicativeElements
+        ) { (increments: [String], decrements: [String]) in
+            
+            // Test
+            var instance: MultiSet<String> = self.empty
+            for increment in increments {
+                instance.update(byAdding: increment)
+            }
+            for decrement in decrements {
+                instance.update(byAdding: "placeholder", andRemoving: decrement)
+            }
+            
+            // Verify
+            return (
+                instance.countsByElement.values.allSatisfy { $0 > 0 }
+                
+                ^&&^
+                
+                instance.elementsByCount.keys.allSatisfy { $0 > 0 }
+            )
+        }
+    }
+    
+    func testProp_update_mostRecentlyIncrementedElementIsTheLastOfElementsByCount() {
+        property("most recently incremented element is the last of elements by count") <- forAll(
+            Self.duplicativeElements
+        ) { (elements: [String]) in
+            
+            // Set up
+            var instance: MultiSet<String> = self.empty
+            
+            // Test
+            let actualAssertions: [Bool] = elements
+                .map { (element: String) in
+                    instance.update(byAdding: element)
+                    
+                    guard let count: UInt = instance.countsByElement[element] else {
+                        return true // decremented to 0
+                    }
+                    guard let elements: [String] = instance.elementsByCount[count] else {
+                        return false // if count exists, so should this
+                    }
+                    guard let lastOfElementsByCount: String = elements.last else {
+                        return false // if elements exist, it should never be empty
+                    }
+                    return lastOfElementsByCount == element
+                }
+            
+            // Verify
+            return actualAssertions.allSatisfy { $0 }
+        }
+    }
+    
+    func testProp_update_mostRecentlyDecrementedElementIsTheFirstOfElementsByCount() {
+        property("most recently decremented element is the first of elements by count") <- forAll(
+            Self.duplicativeElements
+        ) { (elements: [String]) in
+            
+            // Set up
+            var instance: MultiSet<String> = self.empty
+            for element in elements {
+                instance.update(byAdding: element)
+            }
+            
+            // Test
+            let actualAssertions: [Bool] = elements
+                .map { (element: String) in
+                    instance.update(byAdding: "placeholder", andRemoving: element)
+                    
+                    guard let count: UInt = instance.countsByElement[element] else {
+                        return true // decremented to 0
+                    }
+                    guard let elements: [String] = instance.elementsByCount[count] else {
+                        return false // if count exists, so should this
+                    }
+                    guard let firstOfElementsByCount: String = elements.first else {
+                        return false // if elements exist, it should never be empty
+                    }
+                    return firstOfElementsByCount == element
+                }
+            
+            // Verify
+            return actualAssertions.allSatisfy { $0 }
         }
     }
     
