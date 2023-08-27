@@ -120,7 +120,10 @@ final class MultiSetTests: XCTestCase {
         }
     
     func testProp_update_countsByElementAndElementsByCountMustReciprocate() {
-        property("counts by element and elements by counts must reciprocate") <- forAll(
+        property(
+            "counts by element and elements by counts must reciprocate",
+            arguments: checkerArguments
+        ) <- forAll(
             Self.duplicativeElements, Self.duplicativeElements
         ) { (increments: [String], decrements: [String]) in
             
@@ -157,7 +160,10 @@ final class MultiSetTests: XCTestCase {
     }
     
     func testProp_update_neverRecordZeroCounts() {
-        property("never record zero counts") <- forAll(
+        property(
+            "never record zero counts",
+            arguments: checkerArguments
+        ) <- forAll(
             Self.duplicativeElements, Self.duplicativeElements
         ) { (increments: [String], decrements: [String]) in
             
@@ -182,7 +188,10 @@ final class MultiSetTests: XCTestCase {
     }
     
     func testProp_update_mostRecentlyIncrementedElementIsTheLastOfElementsByCount() {
-        property("most recently incremented element is the last of elements by count") <- forAll(
+        property(
+            "most recently incremented element is the last of elements by count",
+            arguments: checkerArguments
+        ) <- forAll(
             Self.duplicativeElements
         ) { (elements: [String]) in
             
@@ -212,7 +221,10 @@ final class MultiSetTests: XCTestCase {
     }
     
     func testProp_update_mostRecentlyDecrementedElementIsTheFirstOfElementsByCount() {
-        property("most recently decremented element is the first of elements by count") <- forAll(
+        property(
+            "most recently decremented element is the first of elements by count",
+            arguments: checkerArguments
+        ) <- forAll(
             Self.duplicativeElements
         ) { (elements: [String]) in
             

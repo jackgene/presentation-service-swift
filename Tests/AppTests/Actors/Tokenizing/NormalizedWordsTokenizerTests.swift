@@ -205,7 +205,10 @@ final class NormalizedWordsTokenizerTests: XCTestCase {
     
     // MARK: Properties
     func testProp_tokenize_onlyExtractHyphenatedLowerCaseTokens() {
-        property("only extract hyphenated lower-case tokens") <- forAll { (text: String) in
+        property(
+            "only extract hyphenated lower-case tokens",
+            arguments: checkerArguments
+        ) <- forAll { (text: String) in
             
             // Set up
             let instance = try NormalizedWordsTokenizer()
@@ -221,7 +224,10 @@ final class NormalizedWordsTokenizerTests: XCTestCase {
     }
     
     func testProp_tokenize_neverExtractStopWords() {
-        property("never extract stop words") <- forAll(
+        property(
+            "never extract stop words",
+            arguments: checkerArguments
+        ) <- forAll(
             Gen<String>.alphabeticalLowercase
                 .suchThat { !$0.isEmpty }
                 .proliferate
@@ -242,7 +248,10 @@ final class NormalizedWordsTokenizerTests: XCTestCase {
     }
     
     func testProp_tokenize_onlyExtractWordsLongerThanMinWordLength() {
-        property("only extract words longer than minWordLength") <- forAll(
+        property(
+            "only extract words longer than minWordLength",
+            arguments: checkerArguments
+        ) <- forAll(
             Gen<Int>.positive,
             String.arbitrary
         ) { (minWordLength: Int, text: String) in
@@ -259,7 +268,10 @@ final class NormalizedWordsTokenizerTests: XCTestCase {
     }
     
     func testProp_tokenize_onlyExtractWordsShorterThanMaxWordLength() {
-        property("only extract words shorter than maxWordLength") <- forAll(
+        property(
+            "only extract words shorter than maxWordLength",
+            arguments: checkerArguments
+        ) <- forAll(
             Gen<Int>.positive,
             String.arbitrary
         ) { (maxWordLength: Int, text: String) in

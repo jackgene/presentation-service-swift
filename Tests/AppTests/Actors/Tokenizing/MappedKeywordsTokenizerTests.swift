@@ -111,7 +111,10 @@ final class MappedKeywordsTokenizerTests: XCTestCase {
         .suchThat { !$0.isEmpty }
     
     func testProp_tokenize_extractAllMappedTokens() {
-        property("extract all mapped tokens") <- forAll(
+        property(
+            "extract all mapped tokens",
+            arguments: checkerArguments
+        ) <- forAll(
             Self.keywordsByRawToken
         ) {
             (keywordsByRawToken: [String: String]) in
@@ -131,7 +134,10 @@ final class MappedKeywordsTokenizerTests: XCTestCase {
     }
     
     func testProp_tokenize_onlyExtractMappedTokens() {
-        property("extract all mapped tokens") <- forAll(
+        property(
+            "extract all mapped tokens",
+            arguments: checkerArguments
+        ) <- forAll(
             Self.keywordsByRawToken,
             Gen.alphabeticalLowercase
         ) {
