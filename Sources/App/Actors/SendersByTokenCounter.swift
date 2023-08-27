@@ -72,22 +72,19 @@ public actor SendersByTokenCounter {
         }
     }
     
-    public init?(
+    public init(
         name: String,
         extractTokens: @escaping Tokenizer,
         tokensPerSender: Int,
         chatMessages: ChatMessageBroadcaster,
         rejectedMessages: ChatMessageBroadcaster,
         expectedSenders: Int
-    ) {
-        guard
-            let emptyTokenSet = FIFOBoundedSet<String>(maximumCount: tokensPerSender)
-        else { return nil }
+    ) throws {
         self.name = name
         self.extractTokens = extractTokens
         self.chatMessages = chatMessages
         self.rejectedMessages = rejectedMessages
-        self.defaultTokenSet = emptyTokenSet
+        self.defaultTokenSet = try FIFOBoundedSet<String>(maximumCount: tokensPerSender)
         self.expectedSenders = expectedSenders
         
         chatMessagesAndTokens = []

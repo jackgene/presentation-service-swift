@@ -6,30 +6,21 @@ import XCTest
 final class FIFOBoundedSetTests: XCTestCase {
     // MARK: Specifications
     var emptyStringSet: FIFOBoundedSet<String> {
-        get throws {
-            guard let instance = FIFOBoundedSet<String>(maximumCount: 2) else {
-                XCTFail("unable to instantiate FIFOBoundedSet")
-                throw XCTSkip()
-            }
-            return instance
-        }
+        get throws { try FIFOBoundedSet<String>(maximumCount: 2) }
     }
     
     func testSpec_init_empty() {
         // Set up & Test
-        let instance: FIFOBoundedSet<String>? = FIFOBoundedSet(maximumCount: 2)
+        let instance: FIFOBoundedSet<String>? = try? FIFOBoundedSet(maximumCount: 2)
         
         // Verify
         assertThat(instance, not(nilValue()))
         assertThat(instance!, hasCount(0))
     }
     
-    func testSpec_init_zeroMaximumCapacity() {
-        // Set up & Test
-        let instance: FIFOBoundedSet<String>? = FIFOBoundedSet(maximumCount: 0)
-        
-        // Verify
-        assertThat(instance, nilValue())
+    func testSpec_init_zeroMaximumCount() {
+        // Test & Verify
+        assertThrows(try FIFOBoundedSet<String>(maximumCount: 0))
     }
     
     func testSpec_append_newElementToEmptyInstance() throws {
@@ -147,14 +138,14 @@ final class FIFOBoundedSetTests: XCTestCase {
     }
     
     // MARK: Properties
-    func testProp_appendContentOf_neverContainMoreElementsThanMaxSize() {
+    func testProp_appendContentOf_neverContainMoreElementsThanMaximumCount() {
         property("never contain more elements than maximumCount") <- forAll {
-            (maximumCountGen: Positive<Int>, elements: [Int]) in
+            (maximumCountPos: Positive<Int>, elements: [Int]) in
             
             // Set up
-            let maximumCount: Int = maximumCountGen.getPositive
+            let maximumCount: Int = maximumCountPos.getPositive
             guard
-                var instance: FIFOBoundedSet<Int> = FIFOBoundedSet(maximumCount: maximumCount)
+                var instance: FIFOBoundedSet<Int> = try? FIFOBoundedSet(maximumCount: maximumCount)
             else {
                 XCTFail("unable to instantiate FIFOBoundedSet")
                 throw XCTSkip()
@@ -175,7 +166,7 @@ final class FIFOBoundedSetTests: XCTestCase {
             // Set up
             let maximumCount: Int = maximumCountGen.getPositive
             guard
-                var instance: FIFOBoundedSet<Int> = FIFOBoundedSet(maximumCount: maximumCount)
+                var instance: FIFOBoundedSet<Int> = try? FIFOBoundedSet(maximumCount: maximumCount)
             else {
                 XCTFail("unable to instantiate FIFOBoundedSet")
                 throw XCTSkip()
@@ -196,7 +187,7 @@ final class FIFOBoundedSetTests: XCTestCase {
             // Set up
             let maximumCount: Int = maximumCountGen.getPositive
             guard
-                var instance: FIFOBoundedSet<Int> = FIFOBoundedSet(maximumCount: maximumCount)
+                var instance: FIFOBoundedSet<Int> = try? FIFOBoundedSet(maximumCount: maximumCount)
             else { throw XCTSkip("unable to instantiate FIFOBoundedSet") }
             
             // Test
@@ -220,7 +211,7 @@ final class FIFOBoundedSetTests: XCTestCase {
             
             // Set up
             guard
-                var instance: FIFOBoundedSet<Int> = FIFOBoundedSet(maximumCount: max(elements.count, 1))
+                var instance: FIFOBoundedSet<Int> = try? FIFOBoundedSet(maximumCount: max(elements.count, 1))
             else { throw XCTSkip("unable to instantiate FIFOBoundedSet") }
             
             // Test
@@ -239,12 +230,12 @@ final class FIFOBoundedSetTests: XCTestCase {
     }
     
     func testProp_appendContentOf_appendAndAppendContentsOfAreEquivalentGivenIdenticalInput() {
-        property("add and addAll are equivalent given identical input") <- forAll {
+        property("append and appendContentOf are equivalent given identical input") <- forAll {
             (maximumCountGen: Positive<Int>, elements: [Int]) in
             
             // Set up
             guard
-                let empty: FIFOBoundedSet<Int> = FIFOBoundedSet(maximumCount: max(elements.count, 1))
+                let empty: FIFOBoundedSet<Int> = try? FIFOBoundedSet(maximumCount: max(elements.count, 1))
             else { throw XCTSkip("unable to instantiate FIFOBoundedSet") }
             var instanceUsingAppend: FIFOBoundedSet<Int> = empty
             var instanceUsingAppendContentsOf: FIFOBoundedSet<Int> = empty
@@ -262,13 +253,7 @@ final class FIFOBoundedSetTests: XCTestCase {
     
     // MARK: Performance
     var emptyIntSet: FIFOBoundedSet<Int> {
-        get throws {
-            guard let instance = FIFOBoundedSet<Int>(maximumCount: 3) else {
-                XCTFail("unable to instantiate FIFOBoundedSet")
-                throw XCTSkip()
-            }
-            return instance
-        }
+        get throws { try FIFOBoundedSet<Int>(maximumCount: 3) }
     }
     var fullIntSet: FIFOBoundedSet<Int> {
         get throws {

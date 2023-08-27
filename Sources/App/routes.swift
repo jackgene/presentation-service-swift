@@ -87,28 +87,58 @@ func routes(_ app: Application, _ config: Configuration) throws {
     
     let chatMessages: ChatMessageBroadcaster = ChatMessageBroadcaster(name: "chat")
     let rejectedMessages: ChatMessageBroadcaster = ChatMessageBroadcaster(name: "rejected")
-    guard
-        let languagePoll: SendersByTokenCounter = SendersByTokenCounter(
-            name: "language-poll",
-            extractTokens: mappedKeywordsTokenizer(config.languagePoll.languageByKeyword),
-            tokensPerSender: config.languagePoll.maxVotesPerPerson,
-            chatMessages: chatMessages, rejectedMessages: rejectedMessages,
-            expectedSenders: 200
-        )
-    else { throw Error.initializationError }
-    guard
-        let wordCloud: SendersByTokenCounter = SendersByTokenCounter(
-            name: "word-cloud",
-            extractTokens: normalizedWordsTokenizer(
+    let languagePoll: SendersByTokenCounter = try {
+        let tokenizer: Tokenizer
+        do {
+            tokenizer = try mappedKeywordsTokenizer(
+                keywordsByRawToken: config.languagePoll.languageByKeyword
+            )
+        } catch Error.illegalArgument(let reason) {
+            throw Error.initializationError(
+                reason: "error initializing language-poll actor's extractTokens: \(reason)"
+            )
+        }
+        do {
+            return try SendersByTokenCounter(
+                name: "language-poll",
+                extractTokens: tokenizer,
+                tokensPerSender: config.languagePoll.maxVotesPerPerson,
+                chatMessages: chatMessages, rejectedMessages: rejectedMessages,
+                expectedSenders: 200
+            )
+        } catch Error.illegalArgument(let reason) {
+            throw Error.initializationError(
+                reason: "error initializing language-poll actor's tokensPerSender: \(reason)"
+            )
+        }
+    }()
+    let wordCloud: SendersByTokenCounter = try {
+        let tokenizer: Tokenizer
+        do {
+            tokenizer = try normalizedWordsTokenizer(
                 stopWords: config.wordCloud.stopWords,
                 minWordLength: config.wordCloud.minWordLength,
                 maxWordLength: config.wordCloud.maxWordLength
-            ),
-            tokensPerSender: config.wordCloud.maxWordsPerPerson,
-            chatMessages: chatMessages, rejectedMessages: rejectedMessages,
-            expectedSenders: 200
-        )
-    else { throw Error.initializationError }
+            )
+        } catch Error.illegalArgument(let reason) {
+            throw Error.initializationError(
+                reason: "error initializing word-cloud actor's extractToken: \(reason)"
+            )
+        }
+        do {
+            return try SendersByTokenCounter(
+                name: "word-cloud",
+                extractTokens: tokenizer,
+                tokensPerSender: config.wordCloud.maxWordsPerPerson,
+                chatMessages: chatMessages, rejectedMessages: rejectedMessages,
+                expectedSenders: 200
+            )
+        } catch Error.illegalArgument(let reason) {
+            throw Error.initializationError(
+                reason: "error initializing word-cloud actor's tokensPerSender: \(reason)"
+            )
+        }
+    }()
     let questions: ModeratedTextCollector = ModeratedTextCollector(
         name: "question",
         chatMessages: chatMessages, rejectedMessages: rejectedMessages,
