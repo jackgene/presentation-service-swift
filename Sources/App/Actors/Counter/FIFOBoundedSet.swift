@@ -13,8 +13,10 @@ public struct FIFOBoundedSet<Element>: Equatable where Element : Hashable {
     var uniques: Set<Element>
     var insertionOrder: Deque<Element>
     
-    public init?(maximumCount: Int) {
-        guard maximumCount > 0 else { return nil }
+    public init(maximumCount: Int) throws {
+        guard maximumCount > 0 else {
+            throw Error.illegalArgument(reason: "maximumCount must be at least 1")
+        }
         
         self.maximumCount = maximumCount
         self.uniques = Set(minimumCapacity: maximumCount)

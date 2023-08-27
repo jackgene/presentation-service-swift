@@ -1,4 +1,5 @@
 /// Application errors
 public enum Error: Swift.Error {
-    case initializationError
+    case initializationError(reason: String)
+    case illegalArgument(reason: String)
 }
