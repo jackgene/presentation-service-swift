@@ -140,7 +140,7 @@ final class FIFOBoundedSetTests: XCTestCase {
     // MARK: Properties
     func testProp_appendContentOf_neverContainMoreElementsThanMaximumCount() {
         property("never contain more elements than maximumCount") <- forAll(
-            Gen<Int>.positiveNumber, [Int].arbitrary
+            Gen<Int>.positive, [Int].arbitrary
         ) { (maximumCount: Int, elements: [Int]) in
             
             // Set up
@@ -156,7 +156,7 @@ final class FIFOBoundedSetTests: XCTestCase {
     
     func testProp_appendContentOf_alwaysIncludeTheMostRecentlyAddedElements() {
         property("always include the most recently added elements") <- forAll(
-            Gen<Int>.positiveNumber, [Int].arbitrary
+            Gen<Int>.positive, [Int].arbitrary
         ) { (maximumCount: Int, elements: [Int]) in
             
             // Set up
@@ -172,7 +172,7 @@ final class FIFOBoundedSetTests: XCTestCase {
     
     func testProp_appendContentOf_onlyEvictTheLeastRecentlyAddedElements() {
         property("only evict the least recently added elements") <- forAll(
-            Gen<Int>.positiveNumber, [Int].arbitrary
+            Gen<Int>.positive, [Int].arbitrary
         ) { (maximumCount: Int, elements: [Int]) in
             
             // Set up
@@ -218,7 +218,7 @@ final class FIFOBoundedSetTests: XCTestCase {
     
     func testProp_appendContentOf_appendAndAppendContentsOfAreEquivalentGivenIdenticalInput() {
         property("append and appendContentOf are equivalent given identical input") <- forAll(
-            Gen<Int>.positiveNumber, [Int].arbitrary
+            Gen<Int>.positive, [Int].arbitrary
         ) { (maximumCount: Int, elements: [Int]) in
             
             // Set up
