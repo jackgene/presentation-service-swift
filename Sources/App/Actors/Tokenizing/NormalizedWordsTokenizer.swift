@@ -8,7 +8,11 @@ struct NormalizedWordsTokenizer {
     let minWordLength: Int
     let maxWordLength: Int
     
-    init(stopWords: Set<String>, minWordLength: Int, maxWordLength: Int) throws {
+    init(
+        stopWords: Set<String> = Set(),
+        minWordLength: Int = 1,
+        maxWordLength: Int = Int.max
+    ) throws {
         guard minWordLength >= 1 else {
             throw Error.illegalArgument(
                 reason: "minWordLength \(minWordLength) must be at least 1"
@@ -19,7 +23,15 @@ struct NormalizedWordsTokenizer {
                 reason: "maxWordLength \(maxWordLength) must be no less than minWordLength \(minWordLength)"
             )
         }
-        
+        let invalidStopWords: Set<String> = stopWords.filter {
+            (try? Self.ValidWordPattern.wholeMatch(in: $0)) == nil
+        }
+        guard invalidStopWords.isEmpty else {
+            throw Error.illegalArgument(
+                reason: "some stop words are invalid: {\(invalidStopWords.joined(separator: ","))}"
+            )
+        }
+
         self.stopWords = stopWords
         self.minWordLength = minWordLength
         self.maxWordLength = maxWordLength
@@ -33,7 +45,7 @@ struct NormalizedWordsTokenizer {
             .filter {
                 minWordLength...maxWordLength ~= $0.count &&
                 !stopWords.contains($0) &&
-                nil != (try? Self.ValidWordPattern.wholeMatch(in: $0))
+                (try? Self.ValidWordPattern.wholeMatch(in: $0)) != nil
             }
     }
 }
