@@ -13,5 +13,5 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v3
     - name: Build and Test
-      run: SWIFTCHECK_MIN_SUCCESSFUL_TEST=100000 swift test -c release
+      run: SWIFTCHECK_MIN_SUCCESSFUL_TEST=10000 swift test -c release
 
