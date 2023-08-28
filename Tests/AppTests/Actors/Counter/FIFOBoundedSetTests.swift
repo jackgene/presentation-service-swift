@@ -9,13 +9,12 @@ final class FIFOBoundedSetTests: XCTestCase {
         get throws { try FIFOBoundedSet<String>(maximumCount: 2) }
     }
     
-    func testSpec_init_empty() {
+    func testSpec_init_empty() throws {
         // Set up & Test
-        let instance: FIFOBoundedSet<String>? = try? FIFOBoundedSet(maximumCount: 2)
+        let instance: FIFOBoundedSet<String> = try FIFOBoundedSet(maximumCount: 2)
         
         // Verify
-        assertThat(instance, not(nilValue()))
-        assertThat(instance!, hasCount(0))
+        assertThat(instance, empty())
     }
     
     func testSpec_init_zeroMaximumCount() {
