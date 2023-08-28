@@ -4,21 +4,21 @@ import SwiftHamcrest
 import XCTest
 
 final class MultiSetTests: XCTestCase {
-    let empty: MultiSet<String> = MultiSet(minimumCapacity: 2)
+    let emptyInstance: MultiSet<String> = MultiSet(minimumCapacity: 2)
     
     // MARK: Specifications
     func testSpec_init_empty() {
         // Set up & Test
-        let instance: MultiSet<String> = empty
+        let instance: MultiSet<String> = emptyInstance
         
         // Verify
-        assertThat(instance.countsByElement, hasCount(0))
-        assertThat(instance.elementsByCount, hasCount(0))
+        assertThat(instance.countsByElement, empty())
+        assertThat(instance.elementsByCount, empty())
     }
     
     func testSpec_update_recordCorrectCounts() {
         // Set up
-        var instance: MultiSet<String> = empty
+        var instance: MultiSet<String> = emptyInstance
         
         // Test
         instance.update(byAdding: "test-2", andRemoving: "test-1") // test-1: 0, test-2: 1
@@ -39,7 +39,7 @@ final class MultiSetTests: XCTestCase {
     
     func testSpec_update_decrementZero() {
         // Set up
-        var instance: MultiSet<String> = empty
+        var instance: MultiSet<String> = emptyInstance
         
         // Test
         instance.update(byAdding: "unused", andRemoving: "test")
@@ -50,7 +50,7 @@ final class MultiSetTests: XCTestCase {
     
     func testSpec_update_incrementMax() {
         // Set up
-        var instance: MultiSet<String> = empty
+        var instance: MultiSet<String> = emptyInstance
         instance.countsByElement["test"] = UInt.max
         instance.elementsByCount[UInt.max] = ["test"]
         
@@ -63,7 +63,7 @@ final class MultiSetTests: XCTestCase {
     
     func testSpec_update_appendToItemsByCountWhenIncremented() {
         // Set up
-        var instance: MultiSet<String> = empty
+        var instance: MultiSet<String> = emptyInstance
         instance.update(byAdding: "test-1")
         
         // Test
@@ -76,7 +76,7 @@ final class MultiSetTests: XCTestCase {
     
     func testSpec_update_prependToItemsByCountWhenDecremented() {
         // Set up
-        var instance: MultiSet<String> = empty
+        var instance: MultiSet<String> = emptyInstance
         instance.update(byAdding: "test-2")
         instance.update(byAdding: "test-2")
         
@@ -90,7 +90,7 @@ final class MultiSetTests: XCTestCase {
     
     func testSpec_update_omitZeroCounts() {
         // Set up
-        var instance: MultiSet<String> = empty
+        var instance: MultiSet<String> = emptyInstance
         
         // Test
         instance.update(byAdding: "test", andRemoving: "test")
@@ -128,7 +128,7 @@ final class MultiSetTests: XCTestCase {
         ) { (increments: [String], decrements: [String]) in
             
             // Test
-            var instance: MultiSet<String> = self.empty
+            var instance: MultiSet<String> = self.emptyInstance
             for increment in increments {
                 instance.update(byAdding: increment)
             }
@@ -168,7 +168,7 @@ final class MultiSetTests: XCTestCase {
         ) { (increments: [String], decrements: [String]) in
             
             // Test
-            var instance: MultiSet<String> = self.empty
+            var instance: MultiSet<String> = self.emptyInstance
             for increment in increments {
                 instance.update(byAdding: increment)
             }
@@ -196,7 +196,7 @@ final class MultiSetTests: XCTestCase {
         ) { (elements: [String]) in
             
             // Set up
-            var instance: MultiSet<String> = self.empty
+            var instance: MultiSet<String> = self.emptyInstance
             
             // Test
             let actualAssertions: [Bool] = elements
@@ -229,7 +229,7 @@ final class MultiSetTests: XCTestCase {
         ) { (elements: [String]) in
             
             // Set up
-            var instance: MultiSet<String> = self.empty
+            var instance: MultiSet<String> = self.emptyInstance
             for element in elements {
                 instance.update(byAdding: element)
             }
@@ -258,7 +258,7 @@ final class MultiSetTests: XCTestCase {
     
     // MARK: Performance
     func testPerf_update_newVotePerformance() {
-        var instance: MultiSet<String> = empty
+        var instance: MultiSet<String> = emptyInstance
         
         measure(metrics: [XCTClockMetric()]) {
             instance.update(byAdding: "test")
@@ -266,7 +266,7 @@ final class MultiSetTests: XCTestCase {
     }
     
     func testPerf_update_voteChangePerformance() {
-        var instance: MultiSet<String> = empty
+        var instance: MultiSet<String> = emptyInstance
         
         measure(metrics: [XCTClockMetric()]) {
             instance.update(byAdding: "new", andRemoving: "old")
