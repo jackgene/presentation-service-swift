@@ -227,9 +227,9 @@ final class FIFOBoundedSetTests: XCTestCase {
         }
     }
     
-    func testProp_appendContentOf_appendAndAppendContentsOfAreEquivalentGivenIdenticalInput() {
+    func testProp_appendContentOf_appendAndAppendContentsOfAreEqualGivenIdenticalInput() {
         property(
-            "append and appendContentOf are equivalent given identical input",
+            "append and appendContentOf are equal given identical input",
             arguments: checkerArguments
         ) <- forAll(
             Gen<Int>.positive, [Int].arbitrary
@@ -241,16 +241,40 @@ final class FIFOBoundedSetTests: XCTestCase {
             var instanceUsingAppendContentsOf: FIFOBoundedSet<Int> = empty
             
             // Test
+            _ = instanceUsingAppendContentsOf.append(contentsOf: elements)
             for element in elements {
                 _ = instanceUsingAppend.append(element)
             }
-            _ = instanceUsingAppendContentsOf.append(contentsOf: elements)
             
             // Verify
             return instanceUsingAppendContentsOf == instanceUsingAppend
         }
     }
     
+    func testProp_appendContentOf_appendAndAppendContentsOfProduceIdenticalEffectsGivenIdenticalInput() {
+        property(
+            "append and appendContentOf produce identical effects given identical input",
+            arguments: checkerArguments
+        ) <- forAll(
+            Gen<Int>.positive, [Int].arbitrary
+        ) { (maximumCount: Int, elements: [Int]) in
+            
+            // Set up
+            let empty: FIFOBoundedSet<Int> = try FIFOBoundedSet(maximumCount: maximumCount)
+            var instanceUsingAppend: FIFOBoundedSet<Int> = empty
+            var instanceUsingAppendContentsOf: FIFOBoundedSet<Int> = empty
+            
+            // Test
+            let actualEffectsAppendContentsOf = instanceUsingAppendContentsOf
+                .append(contentsOf: elements)
+            let actualEffectsAppend = elements
+                .map { instanceUsingAppend.append($0) }
+            
+            // Verify
+            return actualEffectsAppendContentsOf == actualEffectsAppend
+        }
+    }
+
     // MARK: Performance
     var emptyIntSet: FIFOBoundedSet<Int> {
         get throws { try FIFOBoundedSet<Int>(maximumCount: 3) }

@@ -204,7 +204,7 @@ final class MultiSetTests: XCTestCase {
                     instance.update(byAdding: element)
                     
                     guard let count: UInt = instance.countsByElement[element] else {
-                        return true // decremented to 0
+                        return false // can never increment to 0
                     }
                     guard let elements: [String] = instance.elementsByCount[count] else {
                         return false // if count exists, so should this
