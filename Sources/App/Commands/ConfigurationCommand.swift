@@ -23,9 +23,7 @@ public final class ConfigurationCommand: Command {
         guard
             let url: URL = Bundle.main.url(forResource: "presentation-service", withExtension: "plist")
         else {
-            "Unable to determine presentation-service.plist location\n"
-                .data(using: .utf8)
-                .map(FileHandle.standardError.write)
+            print("Unable to determine presentation-service.plist location", to: &stderr)
             exit(100)
         }
         if signature.write {
@@ -35,15 +33,11 @@ public final class ConfigurationCommand: Command {
                         to: url, atomically: false, encoding: .utf8
                     )
                 } catch {
-                    "Error writing presentation-service.plist: \(error.localizedDescription)\n"
-                        .data(using: .utf8)
-                        .map(FileHandle.standardError.write)
+                    print("Error writing presentation-service.plist: \(error.localizedDescription)", to: &stderr)
                     exit(2)
                 }
             } else {
-                "Existing presentation-service.plist found. -f to overwrite.\n"
-                    .data(using: .utf8)
-                    .map(FileHandle.standardError.write)
+                print("Existing presentation-service.plist found. -f to overwrite.", to: &stderr)
                 exit(1)
             }
         } else {
@@ -51,14 +45,10 @@ public final class ConfigurationCommand: Command {
                 let plist: String = try? String(contentsOf: url),
                 plist != ""
             {
-                "Existing presentation-service.plist found:\n\n"
-                    .data(using: .utf8)
-                    .map(FileHandle.standardError.write)
+                print("Existing presentation-service.plist found:\n", to: &stderr)
                 print(plist)
             } else {
-                "No existing presentation-service.plist. Using defaults:\n\n"
-                    .data(using: .utf8)
-                    .map(FileHandle.standardError.write)
+                print("No existing presentation-service.plist. Using defaults:\n", to: &stderr)
                 print(Configuration.defaultConfigurationPlist)
             }
         }
