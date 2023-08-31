@@ -5,7 +5,7 @@ clean:
 	@rm -rf .build/*-apple-macosx
 
 test:
-	@swift test
+	@swift test --parallel
 
 build:
 	@swift build -c release
