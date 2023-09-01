@@ -50,7 +50,7 @@ actor TokensByCountWebSocketAdapter: CountsSubscriber {
 }
 
 extension WebSocket: ModeratedTextSubscriber {
-    public func messagesReceived(_ msgs: ModeratedText) async {
+    public func moderatedTextReceived(_ msgs: ModeratedText) async {
         if
             let data = try? Self.jsonEncoder.encode(msgs),
             let json = String(data: data, encoding: .utf8)

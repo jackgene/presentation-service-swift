@@ -5,7 +5,7 @@ public struct ModeratedText: Encodable {
 }
 
 public protocol ModeratedTextSubscriber: AnyObject {
-    func messagesReceived(_: ModeratedText) async
+    func moderatedTextReceived(_: ModeratedText) async
 }
 
 /// Actor that collects text from the moderation tool.
@@ -37,7 +37,7 @@ public actor ModeratedTextCollector {
     private func notifySubscribers() async {
         let msgs = ModeratedText(chatText: chatText)
         for subscriber in subscribers {
-            await subscriber.instance.messagesReceived(msgs)
+            await subscriber.instance.moderatedTextReceived(msgs)
         }
     }
     
@@ -48,7 +48,7 @@ public actor ModeratedTextCollector {
     
     public func add(subscriber: ModeratedTextSubscriber) async {
         let msgs = ModeratedText(chatText: chatText.reversed())
-        await subscriber.messagesReceived(msgs)
+        await subscriber.moderatedTextReceived(msgs)
         
         if subscribers.isEmpty {
             await chatMessages.add(subscriber: self)
