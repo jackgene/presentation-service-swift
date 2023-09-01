@@ -140,16 +140,18 @@ extension SendersByTokenCounter: ChatMessageSubscriber {
                 )
             )
             if let sender = sender {
-                for newToken: String in prioritizedTokens {
-                    switch tokensBySender[sender, default: defaultTokenSet].append(newToken) {
-                    case let .addedEvicting(oldToken):
-                        tokenCounts.update(byAdding: newToken,
-                                           andRemoving: oldToken)
-                    case .added:
-                        tokenCounts.update(byAdding: newToken)
-                    case .notAdded: break
+                tokensBySender[sender, default: defaultTokenSet]
+                    .append(contentsOf: prioritizedTokens)
+                    .reversed()
+                    .forEach {
+                        switch $0 {
+                        case .addedEvicting(let newToken, let oldToken):
+                            tokenCounts.update(byAdding: newToken,
+                                               andRemoving: oldToken)
+                        case .added(let newToken):
+                            tokenCounts.update(byAdding: newToken)
+                        }
                     }
-                }
             } else {
                 for newToken: String in prioritizedTokens {
                     tokenCounts.update(byAdding: newToken)

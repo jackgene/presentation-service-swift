@@ -4,9 +4,8 @@ import DequeModule
 /// This is basically an LRU-cache that returns evictions as elements are added.
 public struct FIFOBoundedSet<Element>: Equatable where Element : Hashable {
     public enum Effect: Equatable {
-        case added
-        case addedEvicting(value: Element)
-        case notAdded
+        case added(element: Element)
+        case addedEvicting(element: Element, evicting: Element)
     }
     
     public let maximumCount: Int
@@ -23,7 +22,7 @@ public struct FIFOBoundedSet<Element>: Equatable where Element : Hashable {
         self.insertionOrder = Deque(minimumCapacity: maximumCount)
     }
     
-    public mutating func append(_ element: Element) -> Effect {
+    public mutating func append(_ element: Element) -> Effect? {
         if uniques.contains(element) {
             if insertionOrder.last != element {
                 // Move to end
@@ -31,22 +30,22 @@ public struct FIFOBoundedSet<Element>: Equatable where Element : Hashable {
                 insertionOrder.append(element)
             }
             
-            return .notAdded
+            return nil
         } else {
             uniques.insert(element)
             insertionOrder.append(element)
             
             if uniques.count <= maximumCount {
-                return .added
+                return .added(element: element)
             } else {
                 guard
                     let oldestElement: Element = insertionOrder.popFirst()
                 else {
                     // This really should not ever happen
-                    return .added
+                    return .added(element: element)
                 }
                 uniques.remove(oldestElement)
-                return .addedEvicting(value: oldestElement)
+                return .addedEvicting(element: element, evicting: oldestElement)
             }
         }
     }
@@ -54,7 +53,18 @@ public struct FIFOBoundedSet<Element>: Equatable where Element : Hashable {
     public mutating func append<S>(
         contentsOf newElements: S
     ) -> [Effect] where Element == S.Element, S : Sequence {
-        newElements.map { append($0) }
+        let uniques = self.uniques
+        
+        return newElements
+            .compactMap {
+                switch append($0) {
+                case .addedEvicting(let element, let evicted) where !uniques.contains(evicted):
+                    // Evicted value was part of newElements, and effectively never added, and hence not evicted
+                    return .added(element: element)
+                case let other: return other
+                }
+            }
+            .suffix(maximumCount)
     }
 }
 
