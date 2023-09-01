@@ -272,7 +272,12 @@ final class FIFOBoundedSetTests: XCTestCase {
                 .compactMap { instanceUsingAppend.append($0) }
             
             // Verify
-            return zip(actualEffectsAppendContentsOf, actualEffectsAppend.suffix(maximumCount))
+            return (
+                actualEffectsAppendContentsOf.count <= actualEffectsAppend.count
+                
+                ^&&^
+                
+                zip(actualEffectsAppendContentsOf, actualEffectsAppend.suffix(maximumCount))
                 .allSatisfy { (actualEffectAppendContentsOf, actualEffectAppend) in
                     switch (actualEffectAppendContentsOf, actualEffectAppend) {
                     case (.added(let elementAppendContentsOf), .addedEvicting(let elementAppend, _)):
@@ -280,6 +285,7 @@ final class FIFOBoundedSetTests: XCTestCase {
                     default: return actualEffectAppendContentsOf == actualEffectAppend
                     }
                 }
+            )
         }
     }
 
