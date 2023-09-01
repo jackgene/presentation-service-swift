@@ -30,7 +30,7 @@ final class FIFOBoundedSetTests: XCTestCase {
         let actualEffect: FIFOBoundedSet<String>.Effect? = instance.append("test")
         
         // Verify
-        assertThat(actualEffect, equalTo(.added(element: "test")))
+        assertThat(actualEffect, equalTo(.appended(element: "test")))
         assertThat(instance.insertionOrder, equalTo(["test"]))
     }
     
@@ -43,7 +43,7 @@ final class FIFOBoundedSetTests: XCTestCase {
         let actualEffect: FIFOBoundedSet<String>.Effect? = instance.append("test-2")
         
         // Verify
-        assertThat(actualEffect, equalTo(.added(element: "test-2")))
+        assertThat(actualEffect, equalTo(.appended(element: "test-2")))
         assertThat(instance.insertionOrder, equalTo(["test-1", "test-2"]))
     }
     
@@ -69,7 +69,7 @@ final class FIFOBoundedSetTests: XCTestCase {
         let actualEffect: FIFOBoundedSet<String>.Effect? = instance.append("test-3")
         
         // Verify
-        assertThat(actualEffect, equalTo(.addedEvicting(element: "test-3", evicting: "test-1")))
+        assertThat(actualEffect, equalTo(.appendedEvicting(element: "test-3", evicting: "test-1")))
         assertThat(instance.insertionOrder, equalTo(["test-2", "test-3"]))
     }
     
@@ -94,7 +94,7 @@ final class FIFOBoundedSetTests: XCTestCase {
         let actualEffects: [FIFOBoundedSet<String>.Effect] = instance.append(contentsOf: ["test-1", "test-2"])
         
         // Verify
-        assertThat(actualEffects, equalTo([.added(element: "test-1"), .added(element: "test-2")]))
+        assertThat(actualEffects, equalTo([.appended(element: "test-1"), .appended(element: "test-2")]))
         assertThat(instance.insertionOrder, equalTo(["test-1", "test-2"]))
     }
     
@@ -106,7 +106,7 @@ final class FIFOBoundedSetTests: XCTestCase {
         let actualEffects: [FIFOBoundedSet<String>.Effect] = instance.append(contentsOf: ["test", "test"])
         
         // Verify
-        assertThat(actualEffects, equalTo([.added(element: "test")]))
+        assertThat(actualEffects, equalTo([.appended(element: "test")]))
         assertThat(instance.insertionOrder, equalTo(["test"]))
     }
     
@@ -121,7 +121,7 @@ final class FIFOBoundedSetTests: XCTestCase {
         // Verify
         assertThat(
             actualEffects,
-            equalTo([.added(element: "test-2"), .addedEvicting(element: "test-3", evicting: "test-1")])
+            equalTo([.appended(element: "test-2"), .appendedEvicting(element: "test-3", evicting: "test-1")])
         )
         assertThat(instance.insertionOrder, equalTo(["test-2", "test-3"]))
     }
@@ -135,7 +135,7 @@ final class FIFOBoundedSetTests: XCTestCase {
         let actualEffects: [FIFOBoundedSet<String>.Effect] = instance.append(contentsOf: ["test-1", "test-3"])
         
         // Verify
-        assertThat(actualEffects, equalTo([.addedEvicting(element: "test-3", evicting: "test-2")]))
+        assertThat(actualEffects, equalTo([.appendedEvicting(element: "test-3", evicting: "test-2")]))
         assertThat(instance.insertionOrder, equalTo(["test-1", "test-3"]))
     }
     
@@ -193,8 +193,8 @@ final class FIFOBoundedSetTests: XCTestCase {
             let actualEvictions: [Int] = instance.append(contentsOf: elements)
                 .compactMap {
                     switch $0 {
-                    case .addedEvicting(_, let value): return value
-                    case .added: return nil
+                    case .appendedEvicting(_, let value): return value
+                    case .appended: return nil
                     }
                 }
             
@@ -218,8 +218,8 @@ final class FIFOBoundedSetTests: XCTestCase {
             let actualEvictions: [Int] = instance.append(contentsOf: elements)
                 .compactMap {
                     switch $0 {
-                    case .addedEvicting(_, let value): return value
-                    case .added: return nil
+                    case .appendedEvicting(_, let value): return value
+                    case .appended: return nil
                     }
                 }
             
@@ -280,7 +280,7 @@ final class FIFOBoundedSetTests: XCTestCase {
                 zip(actualEffectsAppendContentsOf, actualEffectsAppend.suffix(maximumCount))
                 .allSatisfy { (actualEffectAppendContentsOf, actualEffectAppend) in
                     switch (actualEffectAppendContentsOf, actualEffectAppend) {
-                    case (.added(let elementAppendContentsOf), .addedEvicting(let elementAppend, _)):
+                    case (.appended(let elementAppendContentsOf), .appendedEvicting(let elementAppend, _)):
                         return elementAppendContentsOf == elementAppend
                     default: return actualEffectAppendContentsOf == actualEffectAppend
                     }

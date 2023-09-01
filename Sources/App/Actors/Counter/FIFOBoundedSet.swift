@@ -4,8 +4,8 @@ import DequeModule
 /// This is basically an LRU-cache that returns evictions as elements are added.
 public struct FIFOBoundedSet<Element>: Equatable where Element : Hashable {
     public enum Effect: Equatable {
-        case added(element: Element)
-        case addedEvicting(element: Element, evicting: Element)
+        case appended(element: Element)
+        case appendedEvicting(element: Element, evicting: Element)
     }
     
     public let maximumCount: Int
@@ -36,16 +36,16 @@ public struct FIFOBoundedSet<Element>: Equatable where Element : Hashable {
             insertionOrder.append(element)
             
             if uniques.count <= maximumCount {
-                return .added(element: element)
+                return .appended(element: element)
             } else {
                 guard
                     let oldestElement: Element = insertionOrder.popFirst()
                 else {
                     // This really should not ever happen
-                    return .added(element: element)
+                    return .appended(element: element)
                 }
                 uniques.remove(oldestElement)
-                return .addedEvicting(element: element, evicting: oldestElement)
+                return .appendedEvicting(element: element, evicting: oldestElement)
             }
         }
     }
@@ -58,9 +58,9 @@ public struct FIFOBoundedSet<Element>: Equatable where Element : Hashable {
         return newElements
             .compactMap {
                 switch append($0) {
-                case .addedEvicting(let element, let evicted) where !uniques.contains(evicted):
+                case .appendedEvicting(let element, let evicted) where !uniques.contains(evicted):
                     // Evicted value was part of newElements, and effectively never added, and hence not evicted
-                    return .added(element: element)
+                    return .appended(element: element)
                 case let other: return other
                 }
             }
