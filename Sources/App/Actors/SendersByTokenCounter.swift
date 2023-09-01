@@ -145,10 +145,10 @@ extension SendersByTokenCounter: ChatMessageSubscriber {
                     .reversed()
                     .forEach {
                         switch $0 {
-                        case .addedEvicting(let newToken, let oldToken):
+                        case .appendedEvicting(let newToken, let oldToken):
                             tokenCounts.update(byAdding: newToken,
                                                andRemoving: oldToken)
-                        case .added(let newToken):
+                        case .appended(let newToken):
                             tokenCounts.update(byAdding: newToken)
                         }
                     }
