@@ -61,7 +61,7 @@ extension WebSocket: ModeratedTextSubscriber {
 }
 
 extension WebSocket: TranscriptionSubscriber {
-    public func transcriptionReceived(_ transcript: Transcript) async {
+    public func transcriptReceived(_ transcript: Transcript) async {
         if
             let data = try? Self.jsonEncoder.encode(transcript),
             let json = String(data: data, encoding: .utf8)

@@ -9,7 +9,7 @@ public struct Transcript: Encodable {
 }
 
 public protocol TranscriptionSubscriber: AnyObject {
-    func transcriptionReceived(_: Transcript) async
+    func transcriptReceived(_: Transcript) async
 }
 
 /// Accumulates transcription texts, and broadcast them to subscribers.
@@ -23,7 +23,7 @@ public actor TranscriptionBroadcaster {
         Self.log.info("Received transcription text - \(text)")
         let transcript = Transcript(text: text)
         for subscriber in subscribers {
-            await subscriber.instance.transcriptionReceived(transcript)
+            await subscriber.instance.transcriptReceived(transcript)
         }
     }
     
