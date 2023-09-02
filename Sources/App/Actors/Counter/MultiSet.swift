@@ -24,11 +24,11 @@ public struct MultiSet<Element> where Element : Hashable {
         newCountElems.append(element)
         elementsByCount[newCount] = newCountElems
         
-        if let oldCountItems: [Element] = elementsByCount[oldCount] {
-            if oldCountItems.count == 1 && oldCountItems[0] == element {
+        if let oldCountElems: [Element] = elementsByCount[oldCount] {
+            if oldCountElems.count == 1 && oldCountElems[0] == element {
                 elementsByCount[oldCount] = nil
             } else {
-                elementsByCount[oldCount] = oldCountItems
+                elementsByCount[oldCount] = oldCountElems
                     .filter { $0 != element }
             }
         }
@@ -46,16 +46,16 @@ public struct MultiSet<Element> where Element : Hashable {
         } else {
             countsByElement[element] = newCount
             
-            var newCountItems: [Element] = elementsByCount[newCount] ?? []
-            newCountItems.insert(element, at: 0)
-            elementsByCount[newCount] = newCountItems
+            var newCountElems: [Element] = elementsByCount[newCount] ?? []
+            newCountElems.insert(element, at: 0)
+            elementsByCount[newCount] = newCountElems
         }
         
-        if let oldCountItems: [Element] = elementsByCount[oldCount] {
-            if oldCountItems.count == 1 && oldCountItems[0] == element {
+        if let oldCountElems: [Element] = elementsByCount[oldCount] {
+            if oldCountElems.count == 1 && oldCountElems[0] == element {
                 elementsByCount[oldCount] = nil
             } else {
-                elementsByCount[oldCount] = oldCountItems
+                elementsByCount[oldCount] = oldCountElems
                     .filter { $0 != element }
             }
         }
