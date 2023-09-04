@@ -69,7 +69,10 @@ final class FIFOBoundedSetTests: XCTestCase {
         let actualEffect: FIFOBoundedSet<String>.Effect? = instance.append("test-3")
         
         // Verify
-        assertThat(actualEffect, equalTo(.appendedEvicting(element: "test-3", evicting: "test-1")))
+        assertThat(
+            actualEffect,
+            equalTo(.appendedEvicting(element: "test-3", evicting: "test-1"))
+        )
         assertThat(instance.insertionOrder, equalTo(["test-2", "test-3"]))
     }
     
@@ -91,10 +94,14 @@ final class FIFOBoundedSetTests: XCTestCase {
         var instance: FIFOBoundedSet<String> = try emptyStringSet
         
         // Test
-        let actualEffects: [FIFOBoundedSet<String>.Effect] = instance.append(contentsOf: ["test-1", "test-2"])
+        let actualEffects: [FIFOBoundedSet<String>.Effect] = instance
+            .append(contentsOf: ["test-1", "test-2"])
         
         // Verify
-        assertThat(actualEffects, equalTo([.appended(element: "test-1"), .appended(element: "test-2")]))
+        assertThat(
+            actualEffects,
+            equalTo([.appended(element: "test-1"), .appended(element: "test-2")])
+        )
         assertThat(instance.insertionOrder, equalTo(["test-1", "test-2"]))
     }
     
@@ -103,7 +110,8 @@ final class FIFOBoundedSetTests: XCTestCase {
         var instance: FIFOBoundedSet<String> = try emptyStringSet
         
         // Test
-        let actualEffects: [FIFOBoundedSet<String>.Effect] = instance.append(contentsOf: ["test", "test"])
+        let actualEffects: [FIFOBoundedSet<String>.Effect] = instance
+            .append(contentsOf: ["test", "test"])
         
         // Verify
         assertThat(actualEffects, equalTo([.appended(element: "test")]))
@@ -116,12 +124,18 @@ final class FIFOBoundedSetTests: XCTestCase {
         _ = instance.append(contentsOf: ["test-1"])
         
         // Test
-        let actualEffects: [FIFOBoundedSet<String>.Effect] = instance.append(contentsOf: ["test-2", "test-3"])
+        let actualEffects: [FIFOBoundedSet<String>.Effect] = instance
+            .append(contentsOf: ["test-2", "test-3"])
         
         // Verify
         assertThat(
             actualEffects,
-            equalTo([.appended(element: "test-2"), .appendedEvicting(element: "test-3", evicting: "test-1")])
+            equalTo(
+                [
+                    .appended(element: "test-2"),
+                    .appendedEvicting(element: "test-3", evicting: "test-1")
+                ]
+            )
         )
         assertThat(instance.insertionOrder, equalTo(["test-2", "test-3"]))
     }
@@ -132,11 +146,61 @@ final class FIFOBoundedSetTests: XCTestCase {
         _ = instance.append(contentsOf: ["test-1", "test-2"])
         
         // Test
-        let actualEffects: [FIFOBoundedSet<String>.Effect] = instance.append(contentsOf: ["test-1", "test-3"])
+        let actualEffects: [FIFOBoundedSet<String>.Effect] = instance
+            .append(contentsOf: ["test-1", "test-3"])
         
         // Verify
-        assertThat(actualEffects, equalTo([.appendedEvicting(element: "test-3", evicting: "test-2")]))
+        assertThat(
+            actualEffects,
+            equalTo([.appendedEvicting(element: "test-3", evicting: "test-2")])
+        )
         assertThat(instance.insertionOrder, equalTo(["test-1", "test-3"]))
+    }
+    
+    func testSpec_appendContentOf_tooManyNewElementsToFullInstance() throws {
+        // Set up
+        var instance: FIFOBoundedSet<String> = try emptyStringSet
+        _ = instance.append(contentsOf: ["test-1", "test-2"])
+        
+        // Test
+        let actualEffects: [FIFOBoundedSet<String>.Effect] = instance
+            .append(
+                contentsOf: [
+                    "test-3", "test-4", // skipped - overwritten
+                    "test-5", "test-6"  // evicts test-1, test-2
+                ]
+            )
+        
+        // Verify
+        assertThat(
+            actualEffects,
+            equalTo(
+                [
+                    .appendedEvicting(element: "test-5", evicting: "test-1"),
+                    .appendedEvicting(element: "test-6", evicting: "test-2")
+                ]
+            )
+        )
+        assertThat(instance.insertionOrder, equalTo(["test-5", "test-6"]))
+    }
+    
+    func testSpec_appendContentOf_existingElementsAfterNewElementsToFullInstance() throws {
+        // Set up
+        var instance: FIFOBoundedSet<String> = try emptyStringSet
+        _ = instance.append(contentsOf: ["test-1", "test-2"])
+        
+        // Test
+        let actualEffects: [FIFOBoundedSet<String>.Effect] = instance
+            .append(
+                contentsOf: [
+                    "test-3", "test-4", // skipped - overwritten
+                    "test-1", "test-2"  // skipped - identical to existing
+                ]
+            )
+        
+        // Verify
+        assertThat(actualEffects, empty())
+        assertThat(instance.insertionOrder, equalTo(["test-1", "test-2"]))
     }
     
     // MARK: Properties
@@ -252,16 +316,16 @@ final class FIFOBoundedSetTests: XCTestCase {
         }
     }
     
-    func testProp_appendContentOf_appendAndAppendContentsOfProduceEquivalentEffectsGivenIdenticalInput() {
+    func testProp_appendContentOf_appendAndAppendContentsOfProduceIdenticalEffectsGivenUpToMaxSizeIdenticalInput() {
         property(
-            "append and appendContentOf produce equivalent effects given identical input",
+            "append and appendContentOf produce identical effects given up to maximumCount identical input",
             arguments: checkerArguments
         ) <- forAll(
-            Gen<Int>.positive, [Int].arbitrary
-        ) { (maximumCount: Int, elements: [Int]) in
+            [Int].arbitrary.suchThat { !$0.isEmpty }
+        ) { (elements: [Int]) in
             
             // Set up
-            let empty: FIFOBoundedSet<Int> = try FIFOBoundedSet(maximumCount: maximumCount)
+            let empty: FIFOBoundedSet<Int> = try FIFOBoundedSet(maximumCount: elements.count)
             var instanceUsingAppend: FIFOBoundedSet<Int> = empty
             var instanceUsingAppendContentsOf: FIFOBoundedSet<Int> = empty
             
@@ -272,20 +336,7 @@ final class FIFOBoundedSetTests: XCTestCase {
                 .compactMap { instanceUsingAppend.append($0) }
             
             // Verify
-            return (
-                actualEffectsAppendContentsOf.count <= actualEffectsAppend.count
-                
-                ^&&^
-                
-                zip(actualEffectsAppendContentsOf, actualEffectsAppend.suffix(maximumCount))
-                .allSatisfy { (actualEffectAppendContentsOf, actualEffectAppend) in
-                    switch (actualEffectAppendContentsOf, actualEffectAppend) {
-                    case (.appended(let elementAppendContentsOf), .appendedEvicting(let elementAppend, _)):
-                        return elementAppendContentsOf == elementAppend
-                    default: return actualEffectAppendContentsOf == actualEffectAppend
-                    }
-                }
-            )
+            return actualEffectsAppendContentsOf == actualEffectsAppend
         }
     }
 
