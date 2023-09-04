@@ -14,7 +14,9 @@ public struct FIFOBoundedSet<Element>: Equatable where Element : Hashable {
     
     public init(maximumCount: Int) throws {
         guard maximumCount > 0 else {
-            throw Error.illegalArgument(reason: "maximumCount must be at least 1")
+            throw Error.illegalArgument(
+                reason: "maximumCount must be at least 1"
+            )
         }
         
         self.maximumCount = maximumCount
@@ -45,7 +47,9 @@ public struct FIFOBoundedSet<Element>: Equatable where Element : Hashable {
                     return .appended(element: element)
                 }
                 uniques.remove(oldestElement)
-                return .appendedEvicting(element: element, evicting: oldestElement)
+                return .appendedEvicting(
+                    element: element, evicting: oldestElement
+                )
             }
         }
     }
@@ -53,18 +57,37 @@ public struct FIFOBoundedSet<Element>: Equatable where Element : Hashable {
     public mutating func append<S>(
         contentsOf newElements: S
     ) -> [Effect] where Element == S.Element, S : Sequence {
-        let uniques = self.uniques
-        
-        return newElements
+        let oldUniques = self.uniques
+        let oldInsertionOrder = self.insertionOrder
+        let additions: [Element] = newElements
             .compactMap {
                 switch append($0) {
-                case .appendedEvicting(let element, let evicted) where !uniques.contains(evicted):
-                    // Evicted value was part of newElements, and effectively never added, and hence not evicted
-                    return .appended(element: element)
-                case let other: return other
+                case .appended(let element): return element
+                case .appendedEvicting(let element, _): return element
+                case nil: return nil
                 }
             }
-            .suffix(maximumCount)
+        
+        let effectiveEvictSet: Set<Element> = oldUniques
+            .subtracting(uniques)
+        let effectiveEvicts: [Element] = oldInsertionOrder
+            .filter { effectiveEvictSet.contains($0) }
+        
+        let effectiveAppendSet: Set<Element> = uniques
+            .subtracting(oldUniques)
+        let effectiveAppends: [Element] = additions
+            .uniqued()
+            .filter { effectiveAppendSet.contains($0) }
+        
+        let appendOnlys: Int = effectiveAppends.count - effectiveEvicts.count
+        let effectiveAppendeds: [Effect] = effectiveAppends
+            .prefix(appendOnlys)
+            .map { .appended(element: $0) }
+        let effectiveAppendedEvictings: [Effect] = zip(
+            effectiveAppends.dropFirst(appendOnlys), effectiveEvicts
+        ).map { .appendedEvicting(element: $0, evicting: $1) }
+        
+        return effectiveAppendeds + effectiveAppendedEvictings
     }
 }
 
