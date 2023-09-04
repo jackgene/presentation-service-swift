@@ -83,7 +83,7 @@ extension WebSocket: ChatMessageSubscriber {
 }
 
 func routes(_ app: Application, _ config: Configuration) throws {
-    let routePattern: Regex = /(?<sender>.*) to (?<recipient>Everyone|Me)(?: \(Direct Message\))?/
+    let routePattern: Regex = /(?<sender>.*) to (?<recipient>Everyone|You)(?: \(Direct Message\))?/
     
     let chatMessages: ChatMessageBroadcaster = ChatMessageBroadcaster(name: "chat")
     let rejectedMessages: ChatMessageBroadcaster = ChatMessageBroadcaster(name: "rejected")
@@ -201,7 +201,7 @@ func routes(_ app: Application, _ config: Configuration) throws {
         let senderAndRecipient: (String, String)?
         if let match = try? routePattern.wholeMatch(in: route) {
             senderAndRecipient = (String(match.sender), String(match.recipient))
-        } else if route.hasPrefix("Me to ") {
+        } else if route.hasPrefix("You to ") {
             senderAndRecipient = nil
         } else {
             throw Abort(.badRequest, reason: #"malformed "route": \#(route)"#)
