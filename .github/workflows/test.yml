@@ -20,5 +20,5 @@ jobs:
         restore-keys: |
           ${{ runner.os }}-spm-
     - name: Build and Test
-      run: SWIFTCHECK_MIN_SUCCESSFUL_TEST=1000 swift test -c release
+      run: SWIFTCHECK_MIN_SUCCESSFUL_TEST=1000 make test
 
