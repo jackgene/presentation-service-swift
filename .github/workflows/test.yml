@@ -22,5 +22,5 @@ jobs:
           ${{ runner.os }}-spm-
 
     - name: Build and Test
-      run: system_profiler SPSoftwareDataType SPHardwareDataType && SWIFTCHECK_MIN_SUCCESSFUL_TEST=1000 make test
+      run: SWIFTCHECK_MIN_SUCCESSFUL_TEST=1000 make test
 
