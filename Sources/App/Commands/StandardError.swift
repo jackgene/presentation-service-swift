@@ -8,4 +8,3 @@ extension FileHandle: TextOutputStream {
         self.write(data)
     }
 }
-

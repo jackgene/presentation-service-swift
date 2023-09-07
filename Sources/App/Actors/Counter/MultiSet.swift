@@ -1,5 +1,5 @@
 /// Mutable MultiSet. Not thread-safe.
-public struct MultiSet<Element> where Element : Hashable {
+public struct MultiSet<Element> where Element: Hashable {
     var countsByElement: [Element: UInt]
     public internal(set) var elementsByCount: [UInt: [Element]]
     
