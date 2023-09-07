@@ -2,7 +2,7 @@ import DequeModule
 
 /// First-In, First-Out bounded set.
 /// This is basically an LRU-cache that returns evictions as elements are added.
-public struct FIFOBoundedSet<Element>: Equatable where Element : Hashable {
+public struct FIFOBoundedSet<Element>: Equatable where Element: Hashable {
     public enum Effect: Equatable {
         case appended(element: Element)
         case appendedEvicting(element: Element, evicting: Element)
@@ -56,7 +56,7 @@ public struct FIFOBoundedSet<Element>: Equatable where Element : Hashable {
     
     public mutating func append<S>(
         contentsOf newElements: S
-    ) -> [Effect] where Element == S.Element, S : Sequence {
+    ) -> [Effect] where Element == S.Element, S: Sequence {
         let oldUniques = self.uniques
         let oldInsertionOrder = self.insertionOrder
         let additions: [Element] = newElements
@@ -112,7 +112,7 @@ extension FIFOBoundedSet: Collection {
     }
 }
 
-extension FIFOBoundedSet: Encodable where Element : Encodable {
+extension FIFOBoundedSet: Encodable where Element: Encodable {
     public func encode(to encoder: Encoder) throws {
         var container = encoder.singleValueContainer()
         try container.encode(insertionOrder)

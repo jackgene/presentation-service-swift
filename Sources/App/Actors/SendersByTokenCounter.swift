@@ -63,13 +63,11 @@ public actor SendersByTokenCounter {
     private var tokenCounts: MultiSet<String>
     private var subscribers: Set<HashableInstance<CountsSubscriber>> = []
     private var currentCounts: Counts {
-        get {
-            Counts(
-                chatMessagesAndTokens: chatMessagesAndTokens,
-                tokensBySender: tokensBySender,
-                tokensByCount: tokenCounts.elementsByCount
-            )
-        }
+        Counts(
+            chatMessagesAndTokens: chatMessagesAndTokens,
+            tokensBySender: tokensBySender,
+            tokensByCount: tokenCounts.elementsByCount
+        )
     }
     
     public init(
