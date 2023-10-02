@@ -28,12 +28,15 @@ public actor TranscriptionBroadcaster {
     }
     
     public func add(subscriber: TranscriptionSubscriber) {
-        subscribers.insert(HashableInstance(subscriber))
-        Self.log.info("+1 transcription subscriber (=\(subscribers.count))")
+        let (inserted, _) = subscribers.insert(HashableInstance(subscriber))
+        if inserted {
+            Self.log.info("+1 transcription subscriber (=\(subscribers.count))")
+        }
     }
     
     public func remove(subscriber: TranscriptionSubscriber) {
-        subscribers.remove(HashableInstance(subscriber))
-        Self.log.info("-1 transcription subscriber (=\(subscribers.count))")
+        if subscribers.remove(HashableInstance(subscriber)) != nil {
+            Self.log.info("-1 transcription subscriber (=\(subscribers.count))")
+        }
     }
 }

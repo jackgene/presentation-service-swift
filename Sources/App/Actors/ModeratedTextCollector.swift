@@ -53,16 +53,19 @@ public actor ModeratedTextCollector {
         if subscribers.isEmpty {
             await chatMessages.add(subscriber: self)
         }
-        subscribers.insert(HashableInstance(subscriber))
-        Self.log.info("+1 \(name) subscriber (=\(subscribers.count))")
+        let (inserted, _) = subscribers.insert(HashableInstance(subscriber))
+        if inserted {
+            Self.log.info("+1 \(name) subscriber (=\(subscribers.count))")
+        }
     }
     
     public func remove(subscriber: ModeratedTextSubscriber) async {
-        subscribers.remove(HashableInstance(subscriber))
-        if subscribers.isEmpty {
-            await chatMessages.remove(subscriber: self)
+        if subscribers.remove(HashableInstance(subscriber)) != nil {
+            if subscribers.isEmpty {
+                await chatMessages.remove(subscriber: self)
+            }
+            Self.log.info("-1 \(name) subscriber (=\(subscribers.count))")
         }
-        Self.log.info("-1 \(name) subscriber (=\(subscribers.count))")
     }
 }
 

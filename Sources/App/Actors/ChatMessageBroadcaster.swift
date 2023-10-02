@@ -42,12 +42,15 @@ public actor ChatMessageBroadcaster {
     }
     
     public func add(subscriber: ChatMessageSubscriber) {
-        subscribers.insert(HashableInstance(subscriber))
-        Self.log.info("+1 \(name) subscriber (=\(subscribers.count))")
+        let (inserted, _) = subscribers.insert(HashableInstance(subscriber))
+        if inserted {
+            Self.log.info("+1 \(name) subscriber (=\(subscribers.count))")
+        }
     }
     
     public func remove(subscriber: ChatMessageSubscriber) {
-        subscribers.remove(HashableInstance(subscriber))
-        Self.log.info("-1 \(name) subscriber (=\(subscribers.count))")
+        if subscribers.remove(HashableInstance(subscriber)) != nil {
+            Self.log.info("-1 \(name) subscriber (=\(subscribers.count))")
+        }
     }
 }
