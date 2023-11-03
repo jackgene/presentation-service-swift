@@ -1,4 +1,4 @@
-// swift-tools-version:5.7
+// swift-tools-version:5.8
 import PackageDescription
 
 let package = Package(
@@ -8,7 +8,7 @@ let package = Package(
     ],
     dependencies: [
         // 💧 A server-side Swift web framework.
-        .package(url: "https://github.com/vapor/vapor.git", exact: "4.69.2"),
+        .package(url: "https://github.com/vapor/vapor.git", exact: "4.83.1"),
         .package(url: "https://github.com/apple/swift-collections.git", exact: "1.0.4"),
         // Tests
         .package(url: "https://github.com/nschum/SwiftHamcrest.git", exact: "2.2.2"),
