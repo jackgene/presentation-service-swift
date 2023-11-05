@@ -20,7 +20,7 @@ public final class PresentationServiceCommand: Command {
         @Option(name: "unix-socket", short: nil, help: "Set the path for the unix domain socket file the server will bind to.")
         var socketPath: String?
         
-        @Option(name: "html-path", short: nil, help: "Path to slide deck HTML.")
+        @Option(name: "html-path", short: nil, help: "Set the path to slide deck HTML.")
         var htmlPath: String?
         
         public init() { }
