@@ -21,11 +21,12 @@ public final class ConfigurationCommand: Command {
     
     public func run(using context: CommandContext, signature: Signature) throws {
         guard
-            let url: URL = Bundle.main.url(forResource: "presentation-service", withExtension: "plist")
+            let executableURL: URL = Bundle.main.executableURL
         else {
-            print("Unable to determine presentation-service.plist location", to: &stderr)
+            print("Unable to determine executable location", to: &stderr)
             exit(100)
         }
+        let url: URL = executableURL.deletingLastPathComponent().appending(path: "presentation-service.plist")
         if signature.write {
             if signature.overwrite || !FileManager.default.fileExists(atPath: url.path) {
                 do {
