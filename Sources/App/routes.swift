@@ -199,12 +199,12 @@ func routes(_ app: Application, _ config: Configuration) throws {
         }
         
         let senderAndRecipient: (String, String)?
-        if let match = try? routePattern.wholeMatch(in: route) {
-            senderAndRecipient = (String(match.sender), String(match.recipient))
-        } else if route.hasPrefix("You to ") {
+        if route.hasPrefix("You to ") {
             senderAndRecipient = nil
+        } else if let match = try? routePattern.wholeMatch(in: route) {
+            senderAndRecipient = (String(match.sender), String(match.recipient))
         } else {
-            throw Abort(.badRequest, reason: #"malformed "route": \#(route)"#)
+            senderAndRecipient = (route, "Everyone")
         }
         
         if let (sender, recipient) = senderAndRecipient {
