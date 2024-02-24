@@ -199,10 +199,10 @@ func routes(_ app: Application, _ config: Configuration) throws {
         }
         
         let senderAndRecipient: (String, String)?
-        if route.hasPrefix("You to ") {
-            senderAndRecipient = nil
-        } else if let match = try? routePattern.wholeMatch(in: route) {
+        if let match = try? routePattern.wholeMatch(in: route) {
             senderAndRecipient = (String(match.sender), String(match.recipient))
+        } else if route.hasPrefix("You to ") { // Direct messages from me
+            senderAndRecipient = nil
         } else {
             senderAndRecipient = (route, "Everyone")
         }
