@@ -8,10 +8,10 @@ let package = Package(
     ],
     dependencies: [
         // 💧 A server-side Swift web framework.
-        .package(url: "https://github.com/vapor/vapor.git", exact: "4.83.1"),
-        .package(url: "https://github.com/apple/swift-collections.git", exact: "1.0.4"),
+        .package(url: "https://github.com/vapor/vapor.git", exact: "4.102.0"),
+        .package(url: "https://github.com/apple/swift-collections.git", exact: "1.1.1"),
         // Tests
-        .package(url: "https://github.com/nschum/SwiftHamcrest.git", exact: "2.2.2"),
+        .package(url: "https://github.com/nschum/SwiftHamcrest.git", exact: "2.2.4"),
         .package(url: "https://github.com/typelift/SwiftCheck.git", exact: "0.12.0"),
         // Benchmark
         .package(url: "https://github.com/apple/swift-collections-benchmark", exact: "0.0.3"),
