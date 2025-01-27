@@ -253,7 +253,6 @@ struct Configuration: Codable {
             </dict>
         </dict>
         </plist>
-
         """#
     public static let defaultConfiguration: Configuration = try! plistDecoder.decode(
         Self.self, from: defaultConfigurationPlist.data(using: .utf8)!
@@ -263,7 +262,7 @@ struct Configuration: Codable {
         let data = try Data(contentsOf: url)
         return try Self.plistDecoder.decode(Self.self, from: data)
     }
-
+    
     let languagePoll: LanguagePoll
     let wordCloud: WordCloud
     

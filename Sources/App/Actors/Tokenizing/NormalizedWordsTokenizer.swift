@@ -31,7 +31,7 @@ struct NormalizedWordsTokenizer {
                 reason: "some stop words are invalid: {\(invalidStopWords.joined(separator: ","))}"
             )
         }
-
+        
         self.stopWords = stopWords
         self.minWordLength = minWordLength
         self.maxWordLength = maxWordLength
