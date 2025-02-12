@@ -1,4 +1,4 @@
-// swift-tools-version:5.8
+// swift-tools-version:6.0
 import PackageDescription
 
 let package = Package(
@@ -8,7 +8,9 @@ let package = Package(
     ],
     dependencies: [
         // 💧 A server-side Swift web framework.
-        .package(url: "https://github.com/vapor/vapor.git", exact: "4.102.0"),
+        .package(url: "https://github.com/vapor/vapor.git", exact: "4.113.2"),
+        // 🔵 Non-blocking, event-driven networking for Swift. Used for custom executors
+//        .package(url: "https://github.com/apple/swift-nio.git", from: "2.65.0"),
         .package(url: "https://github.com/apple/swift-collections.git", exact: "1.1.1"),
         // Tests
         .package(url: "https://github.com/nschum/SwiftHamcrest.git", exact: "2.2.4"),
@@ -24,12 +26,7 @@ let package = Package(
                 .product(name: "DequeModule", package: "swift-collections"),
             ],
             exclude: ["Models/Configuration.plist"],
-            swiftSettings: [
-                // Enable better optimizations when building in Release configuration. Despite the use of
-                // the `.unsafeFlags` construct required by SwiftPM, this flag is recommended for Release
-                // builds.
-                // See <https://github.com/swift-server/guides/blob/main/docs/building.md#building-for-production> for details.
-                .unsafeFlags(["-cross-module-optimization"], .when(configuration: .release)),
+            swiftSettings: swiftSettings + [
                 // Enable regex literal
                 .unsafeFlags(["-enable-bare-slash-regex"]),
             ]
@@ -43,7 +40,8 @@ let package = Package(
             dependencies: [
                 .target(name: "App"),
                 .product(name: "CollectionsBenchmark", package: "swift-collections-benchmark"),
-            ]
+            ],
+            swiftSettings: swiftSettings
         ),
         .testTarget(
             name: "AppTests",
@@ -52,7 +50,14 @@ let package = Package(
                 .product(name: "SwiftCheck", package: "SwiftCheck"),
                 .product(name: "SwiftHamcrest", package: "SwiftHamcrest"),
                 .product(name: "XCTVapor", package: "vapor"),
-            ]
+            ],
+            swiftSettings: swiftSettings
         )
-    ]
+    ],
+    swiftLanguageModes: [.v5]
 )
+
+var swiftSettings: [SwiftSetting] { [
+    .enableUpcomingFeature("DisableOutwardActorInference"),
+    .enableExperimentalFeature("StrictConcurrency"),
+] }
