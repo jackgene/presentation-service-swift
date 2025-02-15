@@ -77,7 +77,7 @@ public final class PresentationServiceCommand: AsyncCommand, Sendable {
         
         switch (signature.hostname, signature.port, signature.bind, signature.socketPath) {
         case (.none, .none, .none, .none): // use defaults
-            try await context.application.server.start(address: nil)
+            try await context.application.server.start(address: .hostname(Self.defaultHostname, port: Self.defaultPort))
             
         case (.none, .none, .none, .some(let socketPath)): // unix socket
             try await context.application.server.start(address: .unixDomainSocket(path: socketPath))
