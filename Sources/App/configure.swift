@@ -12,9 +12,9 @@ func configuration() -> Configuration {
 }
 
 // configures your application
-public func configure(_ app: Application) throws {
-    app.commands.use(PresentationServiceCommand(), as: "present", isDefault: true)
-    app.commands.use(ConfigurationCommand(), as: "configuration")
+public func configure(_ app: Application) async throws {
+    app.asyncCommands.use(PresentationServiceCommand(), as: "present", isDefault: true)
+    app.asyncCommands.use(ConfigurationCommand(), as: "configuration")
     
     // register routes
     try routes(app, configuration())

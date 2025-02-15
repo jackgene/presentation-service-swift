@@ -2,7 +2,7 @@ import ConsoleKit
 import Foundation
 
 /// Displays the current configuration.
-public final class ConfigurationCommand: Command {
+public final class ConfigurationCommand: AsyncCommand {
     public struct Signature: CommandSignature {
         @Flag(name: "write", short: "w", help: "Write default configuration to presentation-service.plist.")
         var write: Bool
@@ -19,7 +19,7 @@ public final class ConfigurationCommand: Command {
     
     init() { }
     
-    public func run(using context: CommandContext, signature: Signature) throws {
+    public func run(using context: CommandContext, signature: Signature) async throws {
         guard
             let executableURL: URL = Bundle.main.executableURL
         else {
