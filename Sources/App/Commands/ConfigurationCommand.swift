@@ -20,6 +20,8 @@ public final class ConfigurationCommand: AsyncCommand {
     init() { }
     
     public func run(using context: CommandContext, signature: Signature) async throws {
+        var stderr = FileHandle.standardError
+        
         guard
             let executableURL: URL = Bundle.main.executableURL
         else {

@@ -105,10 +105,10 @@ public final class PresentationServiceCommand: AsyncCommand, Sendable {
         // setup signal sources for shutdown
         let signalQueue = DispatchQueue(label: "codes.vapor.server.shutdown")
         func makeSignalSource(_ code: Int32) {
-#if canImport(Darwin)
+            #if canImport(Darwin)
             /// https://github.com/swift-server/swift-service-lifecycle/blob/main/Sources/UnixSignals/UnixSignalsSequence.swift#L77-L82
             signal(code, SIG_IGN)
-#endif
+            #endif
             
             let source = DispatchSource.makeSignalSource(signal: code, queue: signalQueue)
             source.setEventHandler {

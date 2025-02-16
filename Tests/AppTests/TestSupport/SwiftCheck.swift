@@ -1,5 +1,5 @@
 import Foundation
-import SwiftCheck
+@preconcurrency import SwiftCheck
 
 let checkerArguments: CheckerArguments = CheckerArguments(
     maxAllowableSuccessfulTests: getenv("SWIFTCHECK_MIN_SUCCESSFUL_TEST")

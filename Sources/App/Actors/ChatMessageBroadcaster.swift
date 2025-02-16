@@ -1,6 +1,6 @@
 import Logging
 
-public struct ChatMessage: Encodable {
+public struct ChatMessage: Sendable, Encodable {
     public let sender: String
     public let recipient: String
     public let text: String
@@ -13,7 +13,7 @@ public struct ChatMessage: Encodable {
     }
 }
 
-public protocol ChatMessageSubscriber: AnyObject {
+public protocol ChatMessageSubscriber: Sendable {
     func messageReceived(_: ChatMessage) async
 }
 

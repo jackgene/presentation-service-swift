@@ -1,5 +1,5 @@
 @testable import App
-import SwiftCheck
+@preconcurrency import SwiftCheck
 import SwiftHamcrest
 import XCTest
 

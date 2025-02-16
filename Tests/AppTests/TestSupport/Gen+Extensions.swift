@@ -1,4 +1,4 @@
-import SwiftCheck
+@preconcurrency import SwiftCheck
 
 extension Gen where A == Character {
     static let alphabeticalLowercase: Gen<A> = Gen<A>.fromElements(in: "a"..."z")

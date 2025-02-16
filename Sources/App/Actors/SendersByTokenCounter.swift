@@ -1,7 +1,7 @@
 import Logging
 
-public struct Counts: Encodable {
-    public enum CountOrTokens: Encodable {
+public struct Counts: Sendable, Encodable {
+    public enum CountOrTokens: Sendable, Encodable {
         case count(number: UInt)
         case tokens(values: [String])
         
@@ -32,7 +32,7 @@ public struct Counts: Encodable {
     }
 }
 
-public protocol CountsSubscriber: AnyObject {
+public protocol CountsSubscriber: Sendable {
     func countsReceived(_: Counts) async
 }
 

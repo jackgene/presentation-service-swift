@@ -1,6 +1,6 @@
 import Logging
 
-public struct Transcript: Encodable {
+public struct Transcript: Sendable, Encodable {
     let text: String
     
     enum CodingKeys: String, CodingKey {
@@ -8,7 +8,7 @@ public struct Transcript: Encodable {
     }
 }
 
-public protocol TranscriptionSubscriber: AnyObject {
+public protocol TranscriptionSubscriber: Sendable {
     func transcriptReceived(_: Transcript) async
 }
 

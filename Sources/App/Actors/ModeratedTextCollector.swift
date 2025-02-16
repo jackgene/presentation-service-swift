@@ -4,7 +4,7 @@ public struct ModeratedText: Encodable {
     public let chatText: [String]
 }
 
-public protocol ModeratedTextSubscriber: AnyObject {
+public protocol ModeratedTextSubscriber: Sendable {
     func moderatedTextReceived(_: ModeratedText) async
 }
 

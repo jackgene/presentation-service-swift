@@ -1,9 +1,10 @@
 import Foundation
 
 struct NormalizedWordsTokenizer {
-    static let ValidWordPattern: Regex = /(\p{L}+(?:-\p{L}+)*)/
+    static var ValidWordPattern: Regex<(Substring, Substring)> { /(\p{L}+(?:-\p{L}+)*)/ }
     static let WordSeparators: CharacterSet =
         .letters.union(CharacterSet(charactersIn: "-")).inverted
+    let validWordPattern: Regex<(Substring, Substring)>
     let stopWords: Set<String>
     let minWordLength: Int
     let maxWordLength: Int
@@ -23,8 +24,9 @@ struct NormalizedWordsTokenizer {
                 reason: "maxWordLength \(maxWordLength) must be no less than minWordLength \(minWordLength)"
             )
         }
+        let validWordPattern = Self.ValidWordPattern
         let invalidStopWords: Set<String> = stopWords.filter {
-            (try? Self.ValidWordPattern.wholeMatch(in: $0)) == nil
+            (try? validWordPattern.wholeMatch(in: $0)) == nil
         }
         guard invalidStopWords.isEmpty else {
             throw Error.illegalArgument(
@@ -32,6 +34,7 @@ struct NormalizedWordsTokenizer {
             )
         }
         
+        self.validWordPattern = validWordPattern
         self.stopWords = stopWords
         self.minWordLength = minWordLength
         self.maxWordLength = maxWordLength
@@ -45,7 +48,7 @@ struct NormalizedWordsTokenizer {
             .filter {
                 minWordLength...maxWordLength ~= $0.count &&
                 !stopWords.contains($0) &&
-                (try? Self.ValidWordPattern.wholeMatch(in: $0)) != nil
+                (try? validWordPattern.wholeMatch(in: $0)) != nil
             }
     }
 }

@@ -83,8 +83,6 @@ extension WebSocket: ChatMessageSubscriber {
 }
 
 func routes(_ app: Application, _ config: Configuration) throws {
-    let routePattern: Regex = /(?<sender>.*) to (?<recipient>Everyone|You)(?: \(Direct Message\))?/
-    
     let chatMessages: ChatMessageBroadcaster = ChatMessageBroadcaster(name: "chat")
     let rejectedMessages: ChatMessageBroadcaster = ChatMessageBroadcaster(name: "rejected")
     let languagePoll: SendersByTokenCounter = try {
@@ -198,6 +196,8 @@ func routes(_ app: Application, _ config: Configuration) throws {
             throw Abort(.badRequest, reason: #"missing "text" parameter"#)
         }
         
+        // TODO extract to top of routes(), if they ever make Regex Sendable
+        let routePattern: Regex = /(?<sender>.*) to (?<recipient>Everyone|You)(?: \(Direct Message\))?/
         let senderAndRecipient: (String, String)?
         if let match = try? routePattern.wholeMatch(in: route) {
             senderAndRecipient = (String(match.sender), String(match.recipient))
